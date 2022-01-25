@@ -5,6 +5,7 @@
 #include "Engine/Texture2D.h"
 
 #include <iostream>
+#include <unordered_map>
 
 // Defines
 #define SCREEN_WIDTH 1600
@@ -15,6 +16,31 @@
 #define WHITE glm::vec3(1, 1, 1)
 
 #define CHUNK_WIDTH 16
+
+// Structs
+/* key_hash
+ */
+struct key_hash : public std::unary_function<glm::vec3, std::size_t> {
+    std::size_t operator() (const glm::vec3 &c) const {
+        int x = (int)c.x;
+        int y = (int)c.y;
+        int z = (int)c.z;
+        return x ^ y ^ z;
+    }
+};
+
+/* key_equal
+ */
+struct key_equal : public std::binary_function<glm::vec3, glm::vec3, bool> {
+    bool operator() (const glm::vec3 &c0, const glm::vec3 &c1) const {
+        return c0 == c1;
+    }
+};
+
+// Typedefs
+typedef std::unordered_map<glm::vec3, Object3D*, key_hash, key_equal> BlockMap;
+typedef std::unordered_map<glm::vec3, Object3D*, key_hash, key_equal>::iterator BlockMapIterator;
+
 
 // Class definitions
 /* Game
@@ -110,14 +136,18 @@ class Game : public Engine {
         /* create_chunk
          */
         void create_chunk(int length, int width) {
+            glm::vec3 position;
             for (int x = 0; x < length; x++) {
                 for (int z = 0; z < width; z++) {
-                    Object3D *cube = new Object3D(glm::vec3(x, 0, z), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1));
+                    position = glm::vec3(x, 0, z);
+                    Object3D *cube = new Object3D(position, glm::vec3(0, 0, 0), glm::vec3(1, 1, 1));
                     if (m_shader.is_valid()) {
                         cube->set_shader(m_shader);
                         cube->set_texture(m_grass_texture);
                         cube->set_material(m_material);
                         cube->set_light(m_light);
+
+                        m_blocks[position] = cube;
                     }
                     else {
                         std::cerr << "Error: Block shader invalid" << std::endl;
@@ -126,9 +156,79 @@ class Game : public Engine {
                     this->add_object(cube);
                 }
             }
+
+            // Update block faces
+            for (int x = 0; x < length; x++) {
+                for (int z = 0; z < width; z++) {
+                    position = glm::vec3(x, 0, z);
+                    update_block_faces(position);
+                }
+            }
+        }
+
+        /* update_block_faces
+         */
+        void update_block_faces(glm::vec3 position) {
+            BlockMapIterator it;
+
+            Object3D *block;
+            it = m_blocks.find(position);
+            if (it != m_blocks.end()) {
+                block = it->second;
+            }
+            else {
+                return;
+            }
+
+            // Back face
+            if (m_blocks.find(glm::vec3(position.x, position.y, position.z - 1)) != m_blocks.end()) {
+                block->set_face_enabled(CUBE_BACK, false);
+            }
+            else {
+                block->set_face_enabled(CUBE_BACK, true);
+            }
+            // Front face
+            if (m_blocks.find(glm::vec3(position.x, position.y, position.z + 1)) != m_blocks.end()) {
+                block->set_face_enabled(CUBE_FRONT, false);
+            }
+            else {
+                block->set_face_enabled(CUBE_FRONT, true);
+            }
+            // Left face
+            if (m_blocks.find(glm::vec3(position.x - 1, position.y, position.z)) != m_blocks.end()) {
+                block->set_face_enabled(CUBE_LEFT, false);
+            }
+            else {
+                block->set_face_enabled(CUBE_LEFT, true);
+            }
+            // Right face
+            if (m_blocks.find(glm::vec3(position.x + 1, position.y, position.z)) != m_blocks.end()) {
+                block->set_face_enabled(CUBE_RIGHT, false);
+            }
+            else {
+                block->set_face_enabled(CUBE_RIGHT, true);
+            }
+            // Bottom face
+            if (m_blocks.find(glm::vec3(position.x, position.y - 1, position.z)) != m_blocks.end()) {
+                block->set_face_enabled(CUBE_BOTTOM, false);
+            }
+            else {
+                block->set_face_enabled(CUBE_BOTTOM, true);
+            }
+            // Top face
+            if (m_blocks.find(glm::vec3(position.x, position.y + 1, position.z)) != m_blocks.end()) {
+                block->set_face_enabled(CUBE_TOP, false);
+            }
+            else {
+                block->set_face_enabled(CUBE_TOP, true);
+            }
         }
 
     private:
+        // Objects
+        BlockMap m_blocks;
+
+        // Shaders
         Shader m_shader;
 
         // Textures
