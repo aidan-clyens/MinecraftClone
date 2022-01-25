@@ -14,13 +14,15 @@
 
 #define WHITE glm::vec3(1, 1, 1)
 
+#define CHUNK_WIDTH 16
+
 // Class definitions
 /* Game
  */
 class Game : public Engine {
     public:
         /* process_mouse_input
-            */
+         */
         void process_mouse_input(double x, double y) {
             if (m_first_mouse) {
                 m_last_mouse_pos_x = x;
@@ -41,7 +43,7 @@ class Game : public Engine {
         }
 
         /* process_mouse_input
-            */
+         */
         void process_keyboard_input() {
             const float speed = 2.5 * m_delta_time;
 
@@ -70,43 +72,32 @@ class Game : public Engine {
         }
 
         /* setup
-            */
+         */
         void setup() {
             // Load shaders
             Shader block_shader("lib/3DEngine/shaders/vertex.glsl", "lib/3DEngine/shaders/texture_fragment.glsl");
+            m_shader = block_shader;
 
             // Load textures
             Texture2D grass_texture("textures/grass.png", 0);
+            m_grass_texture = grass_texture;
 
             // Configure lighting
-            Material material;
-            material.ambient = WHITE;
-            material.diffuse = WHITE;
-            material.specular = WHITE;
-            material.shininess = 32;
+            m_material.ambient = WHITE;
+            m_material.diffuse = WHITE;
+            m_material.specular = WHITE;
+            m_material.shininess = 32;
 
-            Light light;
-            light.ambient = glm::vec3(0.5, 0.5, 0.5);
-            light.diffuse = glm::vec3(0.5, 0.5, 0.5);
-            light.specular = glm::vec3(0.0, 0.0, 0.0);
+            m_light.ambient = glm::vec3(0.5, 0.5, 0.5);
+            m_light.diffuse = glm::vec3(0.5, 0.5, 0.5);
+            m_light.specular = glm::vec3(0.0, 0.0, 0.0);
 
             // Create objects
-            p_cube = new Object3D(glm::vec3(0, -0.5, -1.5), m_rotation, glm::vec3(1, 1, 1));
-            if (block_shader.is_valid()) {
-                p_cube->set_shader(block_shader);
-                p_cube->set_texture(grass_texture);
-                p_cube->set_material(material);
-                p_cube->set_light(light);
-            }
-            else {
-                std::cerr << "Error: Block shader invalid" << std::endl;
-            }
-
-            this->add_object(p_cube);
+            this->create_chunk(CHUNK_WIDTH, CHUNK_WIDTH);
         }
 
         /* update
-            */
+         */
         void update() {
             this->process_keyboard_input();
 
@@ -116,11 +107,38 @@ class Game : public Engine {
             }
         }
 
-    private:
-        Object3D *p_cube;
-        glm::vec3 m_rotation = glm::vec3(0, 0, 0);
+        /* create_chunk
+         */
+        void create_chunk(int length, int width) {
+            for (int x = 0; x < length; x++) {
+                for (int z = 0; z < width; z++) {
+                    Object3D *cube = new Object3D(glm::vec3(x, 0, z), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1));
+                    if (m_shader.is_valid()) {
+                        cube->set_shader(m_shader);
+                        cube->set_texture(m_grass_texture);
+                        cube->set_material(m_material);
+                        cube->set_light(m_light);
+                    }
+                    else {
+                        std::cerr << "Error: Block shader invalid" << std::endl;
+                    }
 
-        double m_rotation_speed = 25;
+                    this->add_object(cube);
+                }
+            }
+        }
+
+    private:
+        Shader m_shader;
+
+        // Textures
+        Texture2D m_grass_texture;
+
+        // Materials
+        Material m_material;
+
+        // Light
+        Light m_light;
 
         // Mouse
         bool m_first_mouse = false;
