@@ -90,18 +90,6 @@ class Game : public Engine {
             light.diffuse = glm::vec3(0.5, 0.5, 0.5);
             light.specular = glm::vec3(0.0, 0.0, 0.0);
 
-            // Create light source
-            p_light = new Object3D(glm::vec3(2, 2, -5), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1));
-            if (block_shader.is_valid()) {
-                p_light->set_shader(block_shader);
-            }
-            else {
-                std::cerr << "Error: Block shader invalid" << std::endl;
-            }
-
-            this->add_object(p_light);
-            this->add_light(p_light);
-
             // Create objects
             p_cube = new Object3D(glm::vec3(0, -0.5, -1.5), m_rotation, glm::vec3(1, 1, 1));
             if (block_shader.is_valid()) {
@@ -129,7 +117,6 @@ class Game : public Engine {
         }
 
     private:
-        Object3D *p_light;
         Object3D *p_cube;
         glm::vec3 m_rotation = glm::vec3(0, 0, 0);
 
