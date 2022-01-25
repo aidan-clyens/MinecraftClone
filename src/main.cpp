@@ -13,7 +13,6 @@
 #define MOUSE_SENSITIVITY 0.1
 
 #define WHITE glm::vec3(1, 1, 1)
-#define ORANGE glm::vec3(1, 0.5, 0.31)
 
 // Class definitions
 /* Game
@@ -74,19 +73,22 @@ class Game : public Engine {
             */
         void setup() {
             // Load shaders
-            Shader block_shader("lib/3DEngine/shaders/vertex.glsl", "lib/3DEngine/shaders/color_fragment.glsl");
+            Shader block_shader("lib/3DEngine/shaders/vertex.glsl", "lib/3DEngine/shaders/texture_fragment.glsl");
+
+            // Load textures
+            Texture2D grass_texture("textures/grass.png", 0);
 
             // Configure lighting
             Material material;
-            material.ambient = ORANGE;
-            material.diffuse = ORANGE;
+            material.ambient = WHITE;
+            material.diffuse = WHITE;
             material.specular = WHITE;
             material.shininess = 32;
 
             Light light;
             light.ambient = glm::vec3(0.5, 0.5, 0.5);
             light.diffuse = glm::vec3(0.5, 0.5, 0.5);
-            light.specular = glm::vec3(0.2, 0.2, 0.2);
+            light.specular = glm::vec3(0.0, 0.0, 0.0);
 
             // Create light source
             p_light = new Object3D(glm::vec3(2, 2, -5), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1));
@@ -104,6 +106,7 @@ class Game : public Engine {
             p_cube = new Object3D(glm::vec3(0, -0.5, -1.5), m_rotation, glm::vec3(1, 1, 1));
             if (block_shader.is_valid()) {
                 p_cube->set_shader(block_shader);
+                p_cube->set_texture(grass_texture);
                 p_cube->set_material(material);
                 p_cube->set_light(light);
             }
