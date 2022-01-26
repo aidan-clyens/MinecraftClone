@@ -4,8 +4,11 @@
 #include "Engine/Shader.h"
 #include "Engine/Texture2D.h"
 
+#include "PerlinNoise.h"
+
 #include <iostream>
 #include <unordered_map>
+#include <cmath>
 
 // Defines
 #define SCREEN_WIDTH 1600
@@ -136,33 +139,38 @@ class Game : public Engine {
         /* create_chunk
          */
         void create_chunk(int length, int width) {
+            int scale = 2;
+            int map_depth = 1;
             glm::vec3 position;
+
             for (int x = 0; x < length; x++) {
                 for (int z = 0; z < width; z++) {
-                    position = glm::vec3(x, 0, z);
-                    Object3D *cube = new Object3D(position, glm::vec3(0, 0, 0), glm::vec3(1, 1, 1));
-                    if (m_shader.is_valid()) {
-                        cube->set_shader(m_shader);
-                        cube->set_texture(m_grass_texture);
-                        cube->set_material(m_material);
-                        cube->set_light(m_light);
+                    int max_height = (int)std::floor(m_perlin.perlin_noise(x, z, length, width, scale) * map_depth);
 
-                        m_blocks[position] = cube;
-                    }
-                    else {
-                        std::cerr << "Error: Block shader invalid" << std::endl;
-                    }
+                    for (int y = -10; y < max_height; y++) {
+                        position = glm::vec3(x, y, z);
+                        Object3D *cube = new Object3D(position, glm::vec3(0, 0, 0), glm::vec3(1, 1, 1));
+                        if (m_shader.is_valid()) {
+                            cube->set_shader(m_shader);
+                            cube->set_texture(m_grass_texture);
+                            cube->set_material(m_material);
+                            cube->set_light(m_light);
 
-                    this->add_object(cube);
+                            m_blocks[position] = cube;
+                        }
+                        else {
+                            std::cerr << "Error: Block shader invalid" << std::endl;
+                        }
+
+                        this->add_object(cube);
+                    }
                 }
             }
 
             // Update block faces
-            for (int x = 0; x < length; x++) {
-                for (int z = 0; z < width; z++) {
-                    position = glm::vec3(x, 0, z);
-                    update_block_faces(position);
-                }
+            for (BlockMapIterator it = m_blocks.begin(); it != m_blocks.end(); it++) {
+                position = it->first;
+                update_block_faces(position);
             }
         }
 
@@ -227,6 +235,9 @@ class Game : public Engine {
     private:
         // Objects
         BlockMap m_blocks;
+
+        // Noise
+        PerlinNoise m_perlin;
 
         // Shaders
         Shader m_shader;
