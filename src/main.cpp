@@ -1,6 +1,6 @@
 // Includes
 #include "Engine/Engine.h"
-#include "Engine/Object3D.h"
+#include "Engine/Cube.h"
 #include "Engine/Shader.h"
 #include "Engine/Texture2D.h"
 
@@ -41,8 +41,8 @@ struct key_equal : public std::binary_function<glm::vec3, glm::vec3, bool> {
 };
 
 // Typedefs
-typedef std::unordered_map<glm::vec3, Object3D*, key_hash, key_equal> BlockMap;
-typedef std::unordered_map<glm::vec3, Object3D*, key_hash, key_equal>::iterator BlockMapIterator;
+typedef std::unordered_map<glm::vec3, Cube*, key_hash, key_equal> BlockMap;
+typedef std::unordered_map<glm::vec3, Cube*, key_hash, key_equal>::iterator BlockMapIterator;
 
 
 // Class definitions
@@ -149,7 +149,7 @@ class Game : public Engine {
 
                     for (int y = -10; y < max_height; y++) {
                         position = glm::vec3(x, y, z);
-                        Object3D *cube = new Object3D(position, glm::vec3(0, 0, 0), glm::vec3(1, 1, 1));
+                        Cube *cube = new Cube(position, glm::vec3(0, 0, 0), glm::vec3(1, 1, 1));
                         if (m_shader.is_valid()) {
                             cube->set_shader(m_shader);
                             cube->set_texture(m_grass_texture);
@@ -179,7 +179,7 @@ class Game : public Engine {
         void update_block_faces(glm::vec3 position) {
             BlockMapIterator it;
 
-            Object3D *block;
+            Cube *block;
             it = m_blocks.find(position);
             if (it != m_blocks.end()) {
                 block = it->second;
