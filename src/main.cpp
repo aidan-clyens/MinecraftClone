@@ -5,6 +5,7 @@
 #include "Engine/Texture2D.h"
 
 #include "PerlinNoise.h"
+#include "BlockAtlas.h"
 
 #include <iostream>
 #include <unordered_map>
@@ -19,6 +20,8 @@
 #define WHITE glm::vec3(1, 1, 1)
 
 #define CHUNK_WIDTH 16
+
+#define TEXTURE_WIDTH 16
 
 // Structs
 /* key_hash
@@ -45,11 +48,27 @@ typedef std::unordered_map<glm::vec3, Cube*, key_hash, key_equal> BlockMap;
 typedef std::unordered_map<glm::vec3, Cube*, key_hash, key_equal>::iterator BlockMapIterator;
 
 
+// Enums
+typedef enum {
+    GRASS_SIDE,
+    GRASS_BOTTOM,
+    GRASS_TOP
+} eBlockAtlas;
+
+
 // Class definitions
 /* Game
  */
 class Game : public Engine {
     public:
+        /* Game
+         */
+        Game():
+        m_block_atlas("textures/block_atlas.png", 8, 8, TEXTURE_WIDTH)
+        {
+
+        }
+
         /* process_mouse_input
          */
         void process_mouse_input(double x, double y) {
@@ -107,7 +126,7 @@ class Game : public Engine {
             m_shader.load("lib/3DEngine/shaders/vertex.glsl", "lib/3DEngine/shaders/texture_fragment.glsl");
 
             // Load textures
-            m_grass_texture.load("textures/grass.png", 0);
+            m_grass_texture.load(m_block_atlas.get_texture_data(GRASS_TOP), TEXTURE_WIDTH, TEXTURE_WIDTH, m_block_atlas.get_num_channels(), 0);
 
             // Configure lighting
             m_material.ambient = WHITE;
@@ -241,6 +260,7 @@ class Game : public Engine {
         Shader m_shader;
 
         // Textures
+        BlockAtlas m_block_atlas;
         Texture2D m_grass_texture;
 
         // Materials
