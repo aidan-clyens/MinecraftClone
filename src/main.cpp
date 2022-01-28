@@ -104,12 +104,10 @@ class Game : public Engine {
          */
         void setup() {
             // Load shaders
-            Shader block_shader("lib/3DEngine/shaders/vertex.glsl", "lib/3DEngine/shaders/texture_fragment.glsl");
-            m_shader = block_shader;
+            m_shader.load("lib/3DEngine/shaders/vertex.glsl", "lib/3DEngine/shaders/texture_fragment.glsl");
 
             // Load textures
-            Texture2D grass_texture("textures/grass.png", 0);
-            m_grass_texture = grass_texture;
+            m_grass_texture.load("textures/grass.png", 0);
 
             // Configure lighting
             m_material.ambient = WHITE;
