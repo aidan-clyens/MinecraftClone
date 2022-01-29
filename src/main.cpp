@@ -3,6 +3,7 @@
 #include "Engine/Cube.h"
 #include "Engine/Shader.h"
 #include "Engine/Texture2D.h"
+#include "Engine/TextureCubeMap.h"
 
 #include "PerlinNoise.h"
 #include "BlockAtlas.h"
@@ -123,10 +124,17 @@ class Game : public Engine {
          */
         void setup() {
             // Load shaders
-            m_shader.load("lib/3DEngine/shaders/vertex.glsl", "lib/3DEngine/shaders/texture_fragment.glsl");
+            m_shader.load("lib/3DEngine/shaders/vertex.glsl", "lib/3DEngine/shaders/cubemap_fragment.glsl");
 
             // Load textures
-            m_grass_texture.load(m_block_atlas.get_texture_data(GRASS_TOP), TEXTURE_WIDTH, TEXTURE_WIDTH, m_block_atlas.get_num_channels(), 0);
+            std::vector<unsigned char*> faces;
+            faces.push_back(m_block_atlas.get_texture_data(GRASS_SIDE));
+            faces.push_back(m_block_atlas.get_texture_data(GRASS_SIDE));
+            faces.push_back(m_block_atlas.get_texture_data(GRASS_TOP));
+            faces.push_back(m_block_atlas.get_texture_data(GRASS_BOTTOM));
+            faces.push_back(m_block_atlas.get_texture_data(GRASS_SIDE));
+            faces.push_back(m_block_atlas.get_texture_data(GRASS_SIDE));
+            m_grass_texture_cube.load(faces, TEXTURE_WIDTH, TEXTURE_WIDTH, m_block_atlas.get_num_channels(), 0);
 
             // Configure lighting
             m_material.ambient = WHITE;
@@ -139,7 +147,15 @@ class Game : public Engine {
             m_light.specular = glm::vec3(0.0, 0.0, 0.0);
 
             // Create objects
-            this->create_chunk(CHUNK_WIDTH, CHUNK_WIDTH);
+            // this->create_chunk(CHUNK_WIDTH, CHUNK_WIDTH);
+            glm::vec3 position = glm::vec3(0, 0, 0);
+            m_blocks[position] = new Cube(position, glm::vec3(0, 0, 0), glm::vec3(1, 1, 1));
+            m_blocks[position]->set_shader(m_shader);
+            m_blocks[position]->set_texture(m_grass_texture_cube);
+            m_blocks[position]->set_material(m_material);
+            m_blocks[position]->set_light(m_light);
+
+            this->add_object(m_blocks[position]);
         }
 
         /* update
@@ -169,7 +185,7 @@ class Game : public Engine {
                         Cube *cube = new Cube(position, glm::vec3(0, 0, 0), glm::vec3(1, 1, 1));
                         if (m_shader.is_valid()) {
                             cube->set_shader(m_shader);
-                            cube->set_texture(m_grass_texture);
+                            cube->set_texture(m_grass_texture_cube);
                             cube->set_material(m_material);
                             cube->set_light(m_light);
 
@@ -261,7 +277,7 @@ class Game : public Engine {
 
         // Textures
         BlockAtlas m_block_atlas;
-        Texture2D m_grass_texture;
+        TextureCubeMap m_grass_texture_cube;
 
         // Materials
         Material m_material;
