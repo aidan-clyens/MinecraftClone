@@ -22,10 +22,21 @@ void NoiseMapGenerator::generate_noise_map(NoiseMap &noise_map, float offset_x, 
 
     for (int x = 0; x < settings.width; x++) {
         for (int y = 0; y < settings.height; y++) {
-            float sample_x = (float)(x + offset_x) / (float)settings.width * settings.scale;
-            float sample_y = (float)(y + offset_y) / (float)settings.height * settings.scale;
+            float noise_height = 0;
+            amplitude = 1;
+            frequency = 1;
 
-            noise_map[glm::vec2(x, y)] = PerlinNoise::perlin_noise(sample_x, sample_y, settings.width, settings.height);
+            for (int i = 0; i < settings.octaves; i++) {
+                float sample_x = (float)(x + offset_x) / (float)settings.width * settings.scale * frequency;
+                float sample_y = (float)(y + offset_y) / (float)settings.height * settings.scale * frequency;
+
+                noise_height += PerlinNoise::perlin_noise(sample_x, sample_y, settings.width, settings.height) * amplitude;
+
+                amplitude *= settings.persistence;
+                frequency *= settings.lacunarity;
+            }
+
+            noise_map[glm::vec2(x, y)] = noise_height;
         }
     }
 
