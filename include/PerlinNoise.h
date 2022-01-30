@@ -11,14 +11,13 @@
  */
 class PerlinNoise {
     public:
-        PerlinNoise();
-
-        float perlin_noise(float sample_x, float sample_y, int length, int width);
+        static void init();
+        static float perlin_noise(float sample_x, float sample_y, int length, int width);
 
     private:
-        glm::vec2 get_constant_vector(int value);
-        float lerp(float t, float a, float b);
-        float fade(float t);
+        PerlinNoise();
 
-        int m_permutations[2 * PERMUTATION_SIZE];
+        static glm::vec2 get_constant_vector(int value);
+        static float lerp(float t, float a, float b);
+        static float fade(float t);
 };

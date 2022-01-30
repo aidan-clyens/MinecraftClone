@@ -1,15 +1,18 @@
 #include "PerlinNoise.h"
 
 
+static int permutations[2 * PERMUTATION_SIZE];
+
+
 /* PerlinNoise
  */
-PerlinNoise::PerlinNoise() {
+void PerlinNoise::init() {
     for (int i = 0; i < PERMUTATION_SIZE; i++) {
-        m_permutations[i] = i;
+        permutations[i] = i;
     }
 
     for (int i = PERMUTATION_SIZE; i < 2 * PERMUTATION_SIZE; i++) {
-        m_permutations[i] = i;
+        permutations[i] = i;
     }
 }
 
@@ -27,23 +30,23 @@ float PerlinNoise::perlin_noise(float sample_x, float sample_y, int length, int 
     int X = (int)std::floor(sample_x) & (PERMUTATION_SIZE - 1);
     int Y = (int)std::floor(sample_y) & (PERMUTATION_SIZE - 1);
 
-    int value_top_right = m_permutations[m_permutations[X + 1] + Y + 1];
-    int value_top_left = m_permutations[m_permutations[X] + Y + 1];
-    int value_bottom_right = m_permutations[m_permutations[X + 1] + Y];
-    int value_bottom_left = m_permutations[m_permutations[X] + Y];
+    int value_top_right = permutations[permutations[X + 1] + Y + 1];
+    int value_top_left = permutations[permutations[X] + Y + 1];
+    int value_bottom_right = permutations[permutations[X + 1] + Y];
+    int value_bottom_left = permutations[permutations[X] + Y];
 
     float dot_top_right = glm::dot(top_right, get_constant_vector(value_top_right));
     float dot_top_left = glm::dot(top_left, get_constant_vector(value_top_left));
     float dot_bottom_right = glm::dot(bottom_right, get_constant_vector(value_bottom_right));
     float dot_bottom_left = glm::dot(bottom_left, get_constant_vector(value_bottom_left));
 
-    float u = this->fade(xf);
-    float v = this->fade(yf);
+    float u = PerlinNoise::fade(xf);
+    float v = PerlinNoise::fade(yf);
 
-    return this->lerp(
+    return PerlinNoise::lerp(
         u,
-        this->lerp(v, dot_bottom_left, dot_top_left),
-        this->lerp(u, dot_bottom_right, dot_top_right)
+        PerlinNoise::lerp(v, dot_bottom_left, dot_top_left),
+        PerlinNoise::lerp(u, dot_bottom_right, dot_top_right)
     );
 }
 

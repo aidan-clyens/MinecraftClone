@@ -84,6 +84,8 @@ class Game : public Engine {
             m_texture_map[BLOCK_GRASS] = TextureCubeMap();
             m_texture_map[BLOCK_DIRT] = TextureCubeMap();
             m_texture_map[BLOCK_STONE] = TextureCubeMap();
+
+            PerlinNoise::init();
         }
 
         /* process_mouse_input
@@ -220,7 +222,7 @@ class Game : public Engine {
                     float sample_x = (float)(x + offset_x) / (float)CHUNK_WIDTH * scale;
                     float sample_z = (float)(z + offset_z) / (float)CHUNK_WIDTH * scale;
 
-                    int max_height = CHUNK_DEPTH + (int)std::floor(m_perlin.perlin_noise(sample_x, sample_z, CHUNK_WIDTH, CHUNK_WIDTH) * map_depth);
+                    int max_height = CHUNK_DEPTH + (int)std::floor(PerlinNoise::perlin_noise(sample_x, sample_z, CHUNK_WIDTH, CHUNK_WIDTH) * map_depth);
 
                     for (int y = 0; y < max_height; y++) {
                         eBlockType type;
@@ -269,9 +271,6 @@ class Game : public Engine {
         }
 
     private:
-        // Noise
-        PerlinNoise m_perlin;
-
         // Shaders
         Shader m_shader;
 
