@@ -48,4 +48,7 @@ class NoiseMapGenerator {
     public:
         static void init();
         static void generate_noise_map(NoiseMap &noise_map, float offset_x, float offset_y, NoiseMapSettings settings);
+    
+    private:
+        static float inverse_lerp(float a, float b, float value);
 };

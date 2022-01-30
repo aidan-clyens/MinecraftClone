@@ -10,6 +10,16 @@ void NoiseMapGenerator::init() {
 /* generate_noise_map
  */
 void NoiseMapGenerator::generate_noise_map(NoiseMap &noise_map, float offset_x, float offset_y, NoiseMapSettings settings) {
+    float max_possible_height = 0;
+    float amplitude = 1;
+    float frequency = 1;
+
+    // Determine max possible height to normalize noise map
+    for (int i = 0; i < settings.octaves; i++) {
+        max_possible_height += amplitude;
+        amplitude *= settings.persistence;
+    }
+
     for (int x = 0; x < settings.width; x++) {
         for (int y = 0; y < settings.height; y++) {
             float sample_x = (float)(x + offset_x) / (float)settings.width * settings.scale;
@@ -18,4 +28,17 @@ void NoiseMapGenerator::generate_noise_map(NoiseMap &noise_map, float offset_x, 
             noise_map[glm::vec2(x, y)] = PerlinNoise::perlin_noise(sample_x, sample_y, settings.width, settings.height);
         }
     }
+
+    // Normalize noise map
+    for (int x = 0; x < settings.width; x++) {
+        for (int y = 0; y < settings.height; y++) {
+            noise_map[glm::vec2(x, y)] = NoiseMapGenerator::inverse_lerp(-max_possible_height, max_possible_height, noise_map[glm::vec2(x, y)]);
+        }
+    }
+}
+
+/* inverse_lerp
+ */
+float NoiseMapGenerator::inverse_lerp(float a, float b, float value) {
+    return (value - a) / (b - a);
 }

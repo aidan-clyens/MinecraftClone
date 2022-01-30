@@ -194,8 +194,11 @@ class Game : public Engine {
             settings.seed = 123456;
             settings.width = CHUNK_WIDTH;
             settings.height = CHUNK_WIDTH;
-            settings.scale = 2;
-            settings.depth = 1.5;
+            settings.scale = 1.8;
+            settings.depth = 2;
+            settings.octaves = 1;
+            settings.persistence = 0.4;
+            settings.lacunarity = 1.6;
 
             HeightMap height_map;
             HeightMapGenerator::generate_height_map(height_map, position.x, position.y, settings);
