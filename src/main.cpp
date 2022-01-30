@@ -49,6 +49,10 @@ typedef std::unordered_map<eBlockType, TextureCubeMap>::iterator TextureMapItera
 typedef std::unordered_map<eBlockType, std::vector<glm::vec3>> BlockMap;
 typedef std::unordered_map<eBlockType, std::vector<glm::vec3>>::iterator BlockMapIterator;
 
+typedef std::unordered_map<eBlockType, Object3DGroup*> InstancedObjectMap;
+typedef std::unordered_map<eBlockType, Object3DGroup*>::iterator InstancedObjectMapIterator;
+
+
 // Class definitions
 /* Game
  */
@@ -226,17 +230,23 @@ class Game : public Engine {
 
             // Create an Object3DGroup for each type of block
             for (BlockMapIterator it = blocks.begin(); it != blocks.end(); it++) {
-                std::vector<Transform> transforms;
-                Cube *cube = new Cube(glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1));
+                eBlockType type = it->first;
 
-                if (m_shader.is_valid()) {
-                    cube->set_shader(m_shader);
-                    cube->set_texture(m_texture_map[it->first]);
-                    cube->set_material(m_material);
-                    cube->set_light(m_light);
-                }
-                else {
-                    std::cerr << "Error: Block shader invalid" << std::endl;
+                if (m_instanced_objects.find(type) == m_instanced_objects.end()) {
+                    Cube *cube = new Cube(glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1));
+
+                    if (m_shader.is_valid()) {
+                        cube->set_shader(m_shader);
+                        cube->set_texture(m_texture_map[type]);
+                        cube->set_material(m_material);
+                        cube->set_light(m_light);
+                    }
+                    else {
+                        std::cerr << "Error: Block shader invalid" << std::endl;
+                    }
+
+                    m_instanced_objects[type] = new Object3DGroup(cube);
+                    this->add_object(m_instanced_objects[type]);
                 }
 
                 for (int i = 0; i < it->second.size(); i++) {
@@ -245,15 +255,15 @@ class Game : public Engine {
                     transform.rotation = glm::vec3(0, 0, 0);
                     transform.size = glm::vec3(1, 1, 1);
 
-                    transforms.push_back(transform);
+                    m_instanced_objects[type]->add_transform(transform);
                 }
-
-                Object3DGroup *group = new Object3DGroup(cube, transforms);
-                this->add_object(group);
             }
         }
 
     private:
+        // Objects
+        InstancedObjectMap m_instanced_objects;
+
         // Shaders
         Shader m_shader;
 
