@@ -19,9 +19,12 @@
 
 #define MOUSE_SENSITIVITY 0.1
 
+#define CAMERA_SPEED 5
+
 #define WHITE glm::vec3(1, 1, 1)
 
 #define CHUNK_WIDTH 16
+#define CHUNK_DEPTH 64
 
 #define TEXTURE_WIDTH 16
 
@@ -74,7 +77,7 @@ class Game : public Engine {
         Game():
         m_block_atlas("textures/block_atlas.png", 8, 8, TEXTURE_WIDTH)
         {
-
+            m_camera.set_position(glm::vec3(0, CHUNK_DEPTH + 5, 5));
         }
 
         /* process_mouse_input
@@ -101,7 +104,7 @@ class Game : public Engine {
         /* process_mouse_input
          */
         void process_keyboard_input() {
-            const float speed = 2.5 * m_delta_time;
+            const float speed = CAMERA_SPEED * m_delta_time;
 
             if (get_key(KEY_W) == KEY_PRESS) {
                 m_camera.translate_x(speed);
@@ -165,7 +168,11 @@ class Game : public Engine {
             m_light.specular = glm::vec3(0.0, 0.0, 0.0);
 
             // Create objects
-            this->create_chunk(CHUNK_WIDTH, CHUNK_WIDTH);
+            for (int i = -1; i <= 1; i++) {
+                for (int j = -1; j <= 1; j++) {
+                    this->create_chunk(glm::vec2(i, j));
+                }
+            }
         }
 
         /* update
@@ -181,18 +188,25 @@ class Game : public Engine {
 
         /* create_chunk
          */
-        void create_chunk(int length, int width) {
-            int scale = 2;
-            int map_depth = 1;
+        void create_chunk(glm::vec2 position) {
+            int seed = 123456;
+            int scale = 1.5;
+            int map_depth = 2;
 
             BlockMap blocks;
 
             // Determine block positions
-            for (int x = 0; x < length; x++) {
-                for (int z = 0; z < width; z++) {
-                    int max_height = (int)std::floor(m_perlin.perlin_noise(x, z, length, width, scale) * map_depth);
+            for (int x = 0; x < CHUNK_WIDTH; x++) {
+                for (int z = 0; z < CHUNK_WIDTH; z++) {
+                    int offset_x = (int)(position.x * (CHUNK_WIDTH - 1)) + seed;
+                    int offset_z = (int)(position.y * (CHUNK_WIDTH - 1)) + seed;
 
-                    for (int y = -10; y < max_height; y++) {
+                    float sample_x = (float)(x + offset_x) / (float)CHUNK_WIDTH * scale;
+                    float sample_z = (float)(z + offset_z) / (float)CHUNK_WIDTH * scale;
+
+                    int max_height = CHUNK_DEPTH + (int)std::floor(m_perlin.perlin_noise(sample_x, sample_z, CHUNK_WIDTH, CHUNK_WIDTH) * map_depth);
+
+                    for (int y = 0; y < max_height; y++) {
                         eBlockType type;
                         if (y == max_height - 1) {
                             type = BLOCK_GRASS;
@@ -201,7 +215,7 @@ class Game : public Engine {
                             type = BLOCK_DIRT;
                         }
 
-                        blocks[type].push_back(glm::vec3(x, y, z));
+                        blocks[type].push_back(glm::vec3(x + position.x * (CHUNK_WIDTH - 1), y, z + position.y * (CHUNK_WIDTH - 1)));
                     }
                 }
             }

@@ -7,14 +7,15 @@ PerlinNoise::PerlinNoise() {
     for (int i = 0; i < PERMUTATION_SIZE; i++) {
         m_permutations[i] = i;
     }
+
+    for (int i = PERMUTATION_SIZE; i < 2 * PERMUTATION_SIZE; i++) {
+        m_permutations[i] = i;
+    }
 }
 
 /* perlin_noise
  */
-float PerlinNoise::perlin_noise(int x, int y, int length, int width, int scale) {
-    float sample_x = (float)x / (float)length * scale;
-    float sample_y = (float)y / (float)width * scale;
-
+float PerlinNoise::perlin_noise(float sample_x, float sample_y, int length, int width) {
     float xf = sample_x - std::floor(sample_x);
     float yf = sample_y - std::floor(sample_y);
 
