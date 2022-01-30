@@ -45,18 +45,24 @@ struct key_equal : public std::binary_function<glm::vec3, glm::vec3, bool> {
     }
 };
 
-// Typedefs
-typedef std::unordered_map<glm::vec3, Cube*, key_hash, key_equal> BlockMap;
-typedef std::unordered_map<glm::vec3, Cube*, key_hash, key_equal>::iterator BlockMapIterator;
-
-
 // Enums
+typedef enum {
+    BLOCK_GRASS,
+    BLOCK_DIRT
+} eBlockType;
+
 typedef enum {
     GRASS_SIDE,
     GRASS_BOTTOM,
     GRASS_TOP
 } eBlockAtlas;
 
+// Typedefs
+// typedef std::unordered_map<glm::vec3, eBlockType, key_hash, key_equal> BlockMap;
+// typedef std::unordered_map<glm::vec3, eBlockType, key_hash, key_equal>::iterator BlockMapIterator;
+
+typedef std::unordered_map<eBlockType, std::vector<glm::vec3>> BlockMap;
+typedef std::unordered_map<eBlockType, std::vector<glm::vec3>>::iterator BlockMapIterator;
 
 // Class definitions
 /* Game
@@ -128,6 +134,7 @@ class Game : public Engine {
             m_shader.load("lib/3DEngine/shaders/vertex.glsl", "lib/3DEngine/shaders/cubemap_fragment.glsl");
 
             // Load textures
+            // Grass texture
             std::vector<unsigned char*> faces;
             faces.push_back(m_block_atlas.get_texture_data(GRASS_SIDE));
             faces.push_back(m_block_atlas.get_texture_data(GRASS_SIDE));
@@ -136,6 +143,16 @@ class Game : public Engine {
             faces.push_back(m_block_atlas.get_texture_data(GRASS_SIDE));
             faces.push_back(m_block_atlas.get_texture_data(GRASS_SIDE));
             m_grass_texture_cube.load(faces, TEXTURE_WIDTH, TEXTURE_WIDTH, m_block_atlas.get_num_channels(), 0);
+
+            // Dirt texture
+            faces.clear();
+            faces.push_back(m_block_atlas.get_texture_data(GRASS_BOTTOM));
+            faces.push_back(m_block_atlas.get_texture_data(GRASS_BOTTOM));
+            faces.push_back(m_block_atlas.get_texture_data(GRASS_BOTTOM));
+            faces.push_back(m_block_atlas.get_texture_data(GRASS_BOTTOM));
+            faces.push_back(m_block_atlas.get_texture_data(GRASS_BOTTOM));
+            faces.push_back(m_block_atlas.get_texture_data(GRASS_BOTTOM));
+            m_dirt_texture_cube.load(faces, TEXTURE_WIDTH, TEXTURE_WIDTH, m_block_atlas.get_num_channels(), 1);
 
             // Configure lighting
             m_material.ambient = WHITE;
@@ -148,8 +165,7 @@ class Game : public Engine {
             m_light.specular = glm::vec3(0.0, 0.0, 0.0);
 
             // Create objects
-            Object3DGroup *chunk = this->create_chunk(CHUNK_WIDTH, CHUNK_WIDTH);
-            this->add_object(chunk);
+            this->create_chunk(CHUNK_WIDTH, CHUNK_WIDTH);
         }
 
         /* update
@@ -165,103 +181,72 @@ class Game : public Engine {
 
         /* create_chunk
          */
-        Object3DGroup *create_chunk(int length, int width) {
+        void create_chunk(int length, int width) {
             int scale = 2;
             int map_depth = 1;
 
-            std::vector<Transform> transforms;
+            BlockMap blocks;
 
-            Cube *cube = new Cube(glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1));
-            if (m_shader.is_valid()) {
-                cube->set_shader(m_shader);
-                cube->set_texture(m_grass_texture_cube);
-                cube->set_material(m_material);
-                cube->set_light(m_light);
-            }
-            else {
-                std::cerr << "Error: Block shader invalid" << std::endl;
-            }
-
+            // Determine block positions
             for (int x = 0; x < length; x++) {
                 for (int z = 0; z < width; z++) {
                     int max_height = (int)std::floor(m_perlin.perlin_noise(x, z, length, width, scale) * map_depth);
 
                     for (int y = -10; y < max_height; y++) {
-                        Transform transform;
-                        transform.position = glm::vec3(x, y, z);
-                        transform.rotation = glm::vec3(0, 0, 0);
-                        transform.size = glm::vec3(1, 1, 1);
+                        eBlockType type;
+                        if (y == max_height - 1) {
+                            type = BLOCK_GRASS;
+                        }
+                        else {
+                            type = BLOCK_DIRT;
+                        }
 
-                        transforms.push_back(transform);
+                        blocks[type].push_back(glm::vec3(x, y, z));
                     }
                 }
             }
 
-            return new Object3DGroup(cube, transforms);
-        }
+            // Create an Object3DGroup for each type of block
+            for (BlockMapIterator it = blocks.begin(); it != blocks.end(); it++) {
+                std::vector<Transform> transforms;
+                Cube *cube = new Cube(glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1));
 
-        /* update_block_faces
-         */
-        void update_block_faces(glm::vec3 position) {
-            BlockMapIterator it;
+                if (m_shader.is_valid()) {
+                    cube->set_shader(m_shader);
 
-            Cube *block;
-            it = m_blocks.find(position);
-            if (it != m_blocks.end()) {
-                block = it->second;
-            }
-            else {
-                return;
-            }
+                    switch (it->first) {
+                        case BLOCK_GRASS:
+                            cube->set_texture(m_grass_texture_cube);
+                            break;
 
-            // Back face
-            if (m_blocks.find(glm::vec3(position.x, position.y, position.z - 1)) != m_blocks.end()) {
-                block->set_face_enabled(CUBE_BACK, false);
-            }
-            else {
-                block->set_face_enabled(CUBE_BACK, true);
-            }
-            // Front face
-            if (m_blocks.find(glm::vec3(position.x, position.y, position.z + 1)) != m_blocks.end()) {
-                block->set_face_enabled(CUBE_FRONT, false);
-            }
-            else {
-                block->set_face_enabled(CUBE_FRONT, true);
-            }
-            // Left face
-            if (m_blocks.find(glm::vec3(position.x - 1, position.y, position.z)) != m_blocks.end()) {
-                block->set_face_enabled(CUBE_LEFT, false);
-            }
-            else {
-                block->set_face_enabled(CUBE_LEFT, true);
-            }
-            // Right face
-            if (m_blocks.find(glm::vec3(position.x + 1, position.y, position.z)) != m_blocks.end()) {
-                block->set_face_enabled(CUBE_RIGHT, false);
-            }
-            else {
-                block->set_face_enabled(CUBE_RIGHT, true);
-            }
-            // Bottom face
-            if (m_blocks.find(glm::vec3(position.x, position.y - 1, position.z)) != m_blocks.end()) {
-                block->set_face_enabled(CUBE_BOTTOM, false);
-            }
-            else {
-                block->set_face_enabled(CUBE_BOTTOM, true);
-            }
-            // Top face
-            if (m_blocks.find(glm::vec3(position.x, position.y + 1, position.z)) != m_blocks.end()) {
-                block->set_face_enabled(CUBE_TOP, false);
-            }
-            else {
-                block->set_face_enabled(CUBE_TOP, true);
+                        case BLOCK_DIRT:
+                        default:
+                            cube->set_texture(m_dirt_texture_cube);
+                            break;
+                    }
+
+                    cube->set_material(m_material);
+                    cube->set_light(m_light);
+                }
+                else {
+                    std::cerr << "Error: Block shader invalid" << std::endl;
+                }
+
+                for (int i = 0; i < it->second.size(); i++) {
+                    Transform transform;
+                    transform.position = it->second[i];
+                    transform.rotation = glm::vec3(0, 0, 0);
+                    transform.size = glm::vec3(1, 1, 1);
+
+                    transforms.push_back(transform);
+                }
+
+                Object3DGroup *group = new Object3DGroup(cube, transforms);
+                this->add_object(group);
             }
         }
 
     private:
-        // Objects
-        BlockMap m_blocks;
-
         // Noise
         PerlinNoise m_perlin;
 
@@ -271,6 +256,7 @@ class Game : public Engine {
         // Textures
         BlockAtlas m_block_atlas;
         TextureCubeMap m_grass_texture_cube;
+        TextureCubeMap m_dirt_texture_cube;
 
         // Materials
         Material m_material;
