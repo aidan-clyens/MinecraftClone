@@ -4,6 +4,7 @@
 #include "Engine/Shader.h"
 #include "Engine/Texture2D.h"
 #include "Engine/TextureCubeMap.h"
+#include "Engine/Object3DGroup.h"
 
 #include "PerlinNoise.h"
 #include "BlockAtlas.h"
@@ -147,15 +148,8 @@ class Game : public Engine {
             m_light.specular = glm::vec3(0.0, 0.0, 0.0);
 
             // Create objects
-            // this->create_chunk(CHUNK_WIDTH, CHUNK_WIDTH);
-            glm::vec3 position = glm::vec3(0, 0, 0);
-            m_blocks[position] = new Cube(position, glm::vec3(0, 0, 0), glm::vec3(1, 1, 1));
-            m_blocks[position]->set_shader(m_shader);
-            m_blocks[position]->set_texture(m_grass_texture_cube);
-            m_blocks[position]->set_material(m_material);
-            m_blocks[position]->set_light(m_light);
-
-            this->add_object(m_blocks[position]);
+            Object3DGroup *chunk = this->create_chunk(CHUNK_WIDTH, CHUNK_WIDTH);
+            this->add_object(chunk);
         }
 
         /* update
@@ -171,40 +165,39 @@ class Game : public Engine {
 
         /* create_chunk
          */
-        void create_chunk(int length, int width) {
+        Object3DGroup *create_chunk(int length, int width) {
             int scale = 2;
             int map_depth = 1;
-            glm::vec3 position;
+
+            std::vector<Transform> transforms;
+
+            Cube *cube = new Cube(glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1));
+            if (m_shader.is_valid()) {
+                cube->set_shader(m_shader);
+                cube->set_texture(m_grass_texture_cube);
+                cube->set_material(m_material);
+                cube->set_light(m_light);
+            }
+            else {
+                std::cerr << "Error: Block shader invalid" << std::endl;
+            }
 
             for (int x = 0; x < length; x++) {
                 for (int z = 0; z < width; z++) {
                     int max_height = (int)std::floor(m_perlin.perlin_noise(x, z, length, width, scale) * map_depth);
 
                     for (int y = -10; y < max_height; y++) {
-                        position = glm::vec3(x, y, z);
-                        Cube *cube = new Cube(position, glm::vec3(0, 0, 0), glm::vec3(1, 1, 1));
-                        if (m_shader.is_valid()) {
-                            cube->set_shader(m_shader);
-                            cube->set_texture(m_grass_texture_cube);
-                            cube->set_material(m_material);
-                            cube->set_light(m_light);
+                        Transform transform;
+                        transform.position = glm::vec3(x, y, z);
+                        transform.rotation = glm::vec3(0, 0, 0);
+                        transform.size = glm::vec3(1, 1, 1);
 
-                            m_blocks[position] = cube;
-                        }
-                        else {
-                            std::cerr << "Error: Block shader invalid" << std::endl;
-                        }
-
-                        this->add_object(cube);
+                        transforms.push_back(transform);
                     }
                 }
             }
 
-            // Update block faces
-            for (BlockMapIterator it = m_blocks.begin(); it != m_blocks.end(); it++) {
-                position = it->first;
-                update_block_faces(position);
-            }
+            return new Object3DGroup(cube, transforms);
         }
 
         /* update_block_faces
