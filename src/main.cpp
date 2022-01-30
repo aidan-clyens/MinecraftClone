@@ -6,8 +6,7 @@
 #include "Engine/TextureCubeMap.h"
 #include "Engine/Object3DGroup.h"
 
-// #include "PerlinNoise.h"
-#include "NoiseMapGenerator.h"
+#include "HeightMapGenerator.h"
 #include "BlockAtlas.h"
 
 #include <iostream>
@@ -66,7 +65,7 @@ class Game : public Engine {
             m_texture_map[BLOCK_DIRT] = TextureCubeMap();
             m_texture_map[BLOCK_STONE] = TextureCubeMap();
 
-            NoiseMapGenerator::init();
+            HeightMapGenerator::init();
         }
 
         /* process_mouse_input
@@ -188,27 +187,22 @@ class Game : public Engine {
         /* create_chunk
          */
         void create_chunk(glm::vec2 position) {
-            int seed = 123456;
-            int map_depth = 2;
-
             BlockMap blocks;
 
             // Generate height map
-            NoiseMap noise_map;
-
-            int offset_x = (int)(position.x * (CHUNK_WIDTH - 1)) + seed;
-            int offset_z = (int)(position.y * (CHUNK_WIDTH - 1)) + seed;
-
-            NoiseMapSettings settings;
+            HeightMapSettings settings;
+            settings.seed = 123456;
             settings.width = CHUNK_WIDTH;
             settings.height = CHUNK_WIDTH;
-            settings.scale = 1.5;
+            settings.scale = 2;
+            settings.depth = 1.5;
 
-            NoiseMapGenerator::generate_noise_map(noise_map, offset_x, offset_z, settings);
+            HeightMap height_map;
+            HeightMapGenerator::generate_height_map(height_map, position.x, position.y, settings);
 
             for (int x = 0; x < CHUNK_WIDTH; x++) {
                 for (int z = 0; z < CHUNK_WIDTH; z++) {
-                    int max_height = CHUNK_DEPTH + (int)std::floor(noise_map[glm::vec2(x, z)] * map_depth);
+                    int max_height = CHUNK_DEPTH + (int)std::floor(height_map[glm::vec2(x, z)]);
 
                     for (int y = 0; y < max_height; y++) {
                         eBlockType type;
