@@ -6,7 +6,8 @@
 #include "Engine/TextureCubeMap.h"
 #include "Engine/Object3DGroup.h"
 
-#include "PerlinNoise.h"
+// #include "PerlinNoise.h"
+#include "NoiseMapGenerator.h"
 #include "BlockAtlas.h"
 
 #include <iostream>
@@ -27,26 +28,6 @@
 #define CHUNK_DEPTH 64
 
 #define TEXTURE_WIDTH 16
-
-// Structs
-/* key_hash
- */
-struct key_hash : public std::unary_function<glm::vec3, std::size_t> {
-    std::size_t operator() (const glm::vec3 &c) const {
-        int x = (int)c.x;
-        int y = (int)c.y;
-        int z = (int)c.z;
-        return x ^ y ^ z;
-    }
-};
-
-/* key_equal
- */
-struct key_equal : public std::binary_function<glm::vec3, glm::vec3, bool> {
-    bool operator() (const glm::vec3 &c0, const glm::vec3 &c1) const {
-        return c0 == c1;
-    }
-};
 
 // Enums
 typedef enum {
@@ -85,7 +66,7 @@ class Game : public Engine {
             m_texture_map[BLOCK_DIRT] = TextureCubeMap();
             m_texture_map[BLOCK_STONE] = TextureCubeMap();
 
-            PerlinNoise::init();
+            NoiseMapGenerator::init();
         }
 
         /* process_mouse_input
@@ -208,21 +189,26 @@ class Game : public Engine {
          */
         void create_chunk(glm::vec2 position) {
             int seed = 123456;
-            int scale = 1.5;
             int map_depth = 2;
 
             BlockMap blocks;
 
-            // Determine block positions
+            // Generate height map
+            NoiseMap noise_map;
+
+            int offset_x = (int)(position.x * (CHUNK_WIDTH - 1)) + seed;
+            int offset_z = (int)(position.y * (CHUNK_WIDTH - 1)) + seed;
+
+            NoiseMapSettings settings;
+            settings.width = CHUNK_WIDTH;
+            settings.height = CHUNK_WIDTH;
+            settings.scale = 1.5;
+
+            NoiseMapGenerator::generate_noise_map(noise_map, offset_x, offset_z, settings);
+
             for (int x = 0; x < CHUNK_WIDTH; x++) {
                 for (int z = 0; z < CHUNK_WIDTH; z++) {
-                    int offset_x = (int)(position.x * (CHUNK_WIDTH - 1)) + seed;
-                    int offset_z = (int)(position.y * (CHUNK_WIDTH - 1)) + seed;
-
-                    float sample_x = (float)(x + offset_x) / (float)CHUNK_WIDTH * scale;
-                    float sample_z = (float)(z + offset_z) / (float)CHUNK_WIDTH * scale;
-
-                    int max_height = CHUNK_DEPTH + (int)std::floor(PerlinNoise::perlin_noise(sample_x, sample_z, CHUNK_WIDTH, CHUNK_WIDTH) * map_depth);
+                    int max_height = CHUNK_DEPTH + (int)std::floor(noise_map[glm::vec2(x, z)] * map_depth);
 
                     for (int y = 0; y < max_height; y++) {
                         eBlockType type;
