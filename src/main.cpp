@@ -51,18 +51,20 @@ struct key_equal : public std::binary_function<glm::vec3, glm::vec3, bool> {
 // Enums
 typedef enum {
     BLOCK_GRASS,
-    BLOCK_DIRT
+    BLOCK_DIRT,
+    BLOCK_STONE
 } eBlockType;
 
 typedef enum {
     GRASS_SIDE,
     GRASS_BOTTOM,
-    GRASS_TOP
+    GRASS_TOP,
+    STONE
 } eBlockAtlas;
 
 // Typedefs
-// typedef std::unordered_map<glm::vec3, eBlockType, key_hash, key_equal> BlockMap;
-// typedef std::unordered_map<glm::vec3, eBlockType, key_hash, key_equal>::iterator BlockMapIterator;
+typedef std::unordered_map<eBlockType, TextureCubeMap> TextureMap;
+typedef std::unordered_map<eBlockType, TextureCubeMap>::iterator TextureMapIterator;
 
 typedef std::unordered_map<eBlockType, std::vector<glm::vec3>> BlockMap;
 typedef std::unordered_map<eBlockType, std::vector<glm::vec3>>::iterator BlockMapIterator;
@@ -78,6 +80,10 @@ class Game : public Engine {
         m_block_atlas("textures/block_atlas.png", 8, 8, TEXTURE_WIDTH)
         {
             m_camera.set_position(glm::vec3(0, CHUNK_DEPTH + 5, 5));
+
+            m_texture_map[BLOCK_GRASS] = TextureCubeMap();
+            m_texture_map[BLOCK_DIRT] = TextureCubeMap();
+            m_texture_map[BLOCK_STONE] = TextureCubeMap();
         }
 
         /* process_mouse_input
@@ -145,7 +151,7 @@ class Game : public Engine {
             faces.push_back(m_block_atlas.get_texture_data(GRASS_BOTTOM));
             faces.push_back(m_block_atlas.get_texture_data(GRASS_SIDE));
             faces.push_back(m_block_atlas.get_texture_data(GRASS_SIDE));
-            m_grass_texture_cube.load(faces, TEXTURE_WIDTH, TEXTURE_WIDTH, m_block_atlas.get_num_channels(), 0);
+            m_texture_map[BLOCK_GRASS].load(faces, TEXTURE_WIDTH, TEXTURE_WIDTH, m_block_atlas.get_num_channels(), 0);
 
             // Dirt texture
             faces.clear();
@@ -155,7 +161,17 @@ class Game : public Engine {
             faces.push_back(m_block_atlas.get_texture_data(GRASS_BOTTOM));
             faces.push_back(m_block_atlas.get_texture_data(GRASS_BOTTOM));
             faces.push_back(m_block_atlas.get_texture_data(GRASS_BOTTOM));
-            m_dirt_texture_cube.load(faces, TEXTURE_WIDTH, TEXTURE_WIDTH, m_block_atlas.get_num_channels(), 1);
+            m_texture_map[BLOCK_DIRT].load(faces, TEXTURE_WIDTH, TEXTURE_WIDTH, m_block_atlas.get_num_channels(), 1);
+
+            // Stone texture
+            faces.clear();
+            faces.push_back(m_block_atlas.get_texture_data(STONE));
+            faces.push_back(m_block_atlas.get_texture_data(STONE));
+            faces.push_back(m_block_atlas.get_texture_data(STONE));
+            faces.push_back(m_block_atlas.get_texture_data(STONE));
+            faces.push_back(m_block_atlas.get_texture_data(STONE));
+            faces.push_back(m_block_atlas.get_texture_data(STONE));
+            m_texture_map[BLOCK_STONE].load(faces, TEXTURE_WIDTH, TEXTURE_WIDTH, m_block_atlas.get_num_channels(), 2);
 
             // Configure lighting
             m_material.ambient = WHITE;
@@ -211,8 +227,11 @@ class Game : public Engine {
                         if (y == max_height - 1) {
                             type = BLOCK_GRASS;
                         }
-                        else {
+                        else if (y < max_height - 1 && y > max_height - 5) {
                             type = BLOCK_DIRT;
+                        }
+                        else {
+                            type = BLOCK_STONE;
                         }
 
                         blocks[type].push_back(glm::vec3(x + position.x * (CHUNK_WIDTH - 1), y, z + position.y * (CHUNK_WIDTH - 1)));
@@ -227,18 +246,7 @@ class Game : public Engine {
 
                 if (m_shader.is_valid()) {
                     cube->set_shader(m_shader);
-
-                    switch (it->first) {
-                        case BLOCK_GRASS:
-                            cube->set_texture(m_grass_texture_cube);
-                            break;
-
-                        case BLOCK_DIRT:
-                        default:
-                            cube->set_texture(m_dirt_texture_cube);
-                            break;
-                    }
-
+                    cube->set_texture(m_texture_map[it->first]);
                     cube->set_material(m_material);
                     cube->set_light(m_light);
                 }
@@ -269,8 +277,7 @@ class Game : public Engine {
 
         // Textures
         BlockAtlas m_block_atlas;
-        TextureCubeMap m_grass_texture_cube;
-        TextureCubeMap m_dirt_texture_cube;
+        TextureMap m_texture_map;
 
         // Materials
         Material m_material;
