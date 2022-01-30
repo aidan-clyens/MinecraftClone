@@ -42,6 +42,26 @@ typedef enum {
     STONE
 } eBlockAtlas;
 
+// Structs
+/* key_hash
+ */
+struct vec3_key_hash : public std::unary_function<glm::vec3, std::size_t> {
+    std::size_t operator() (const glm::vec3 &c) const {
+        int x = (int)c.x;
+        int y = (int)c.y;
+        int z = (int)c.z;
+        return x ^ y ^ z;
+    }
+};
+
+/* key_equal
+ */
+struct vec3_key_equal : public std::binary_function<glm::vec3, glm::vec3, bool> {
+    bool operator() (const glm::vec3 &c0, const glm::vec3 &c1) const {
+        return c0 == c1;
+    }
+};
+
 // Typedefs
 typedef std::unordered_map<eBlockType, TextureCubeMap> TextureMap;
 typedef std::unordered_map<eBlockType, TextureCubeMap>::iterator TextureMapIterator;
@@ -51,6 +71,8 @@ typedef std::unordered_map<eBlockType, std::vector<glm::vec3>>::iterator BlockMa
 
 typedef std::unordered_map<eBlockType, Object3DGroup*> InstancedObjectMap;
 typedef std::unordered_map<eBlockType, Object3DGroup*>::iterator InstancedObjectMapIterator;
+
+typedef std::unordered_map<glm::vec3, eBlockType, vec3_key_hash, vec3_key_equal> BlockPositionMap;
 
 
 // Class definitions
@@ -170,11 +192,15 @@ class Game : public Engine {
             m_light.specular = glm::vec3(0.0, 0.0, 0.0);
 
             // Create objects
-            for (int i = -1; i <= 1; i++) {
-                for (int j = -1; j <= 1; j++) {
-                    this->create_chunk(glm::vec2(i, j));
-                }
-            }
+            this->create_chunk(glm::vec2(0, 0));
+            this->create_chunk(glm::vec2(1, 0));
+            this->create_chunk(glm::vec2(-1, 0));
+            this->create_chunk(glm::vec2(0, 1));
+            this->create_chunk(glm::vec2(1, 1));
+            this->create_chunk(glm::vec2(-1, 1));
+            this->create_chunk(glm::vec2(0, -1));
+            this->create_chunk(glm::vec2(1, -1));
+            this->create_chunk(glm::vec2(-1, -1));
         }
 
         /* update
@@ -224,6 +250,7 @@ class Game : public Engine {
                         }
 
                         blocks[type].push_back(glm::vec3(x + position.x * (CHUNK_WIDTH - 1), y, z + position.y * (CHUNK_WIDTH - 1)));
+                        m_blocks[glm::vec3(x + position.x * (CHUNK_WIDTH - 1), y, z + position.y * (CHUNK_WIDTH - 1))] = type;
                     }
                 }
             }
@@ -250,19 +277,33 @@ class Game : public Engine {
                 }
 
                 for (int i = 0; i < it->second.size(); i++) {
-                    Transform transform;
-                    transform.position = it->second[i];
-                    transform.rotation = glm::vec3(0, 0, 0);
-                    transform.size = glm::vec3(1, 1, 1);
+                    // Determine if block is visible
+                    if (this->is_block_visible(it->second[i])) {
+                        Transform transform;
+                        transform.position = it->second[i];
+                        transform.rotation = glm::vec3(0, 0, 0);
+                        transform.size = glm::vec3(1, 1, 1);
 
-                    m_instanced_objects[type]->add_transform(transform);
+                        m_instanced_objects[type]->add_transform(transform);
+                    }
                 }
             }
+        }
+
+        bool is_block_visible(glm::vec3 position) {
+            return !(m_blocks.find(glm::vec3(position.x + 1, position.y, position.z)) != m_blocks.end() && // +x
+                     m_blocks.find(glm::vec3(position.x - 1, position.y, position.z)) != m_blocks.end() && // -x
+                     m_blocks.find(glm::vec3(position.x, position.y + 1, position.z)) != m_blocks.end() && // +y
+                     m_blocks.find(glm::vec3(position.x, position.y - 1, position.z)) != m_blocks.end() && // -y
+                     m_blocks.find(glm::vec3(position.x, position.y, position.z + 1)) != m_blocks.end() && // +z
+                     m_blocks.find(glm::vec3(position.x, position.y, position.z - 1)) != m_blocks.end());  // -z
         }
 
     private:
         // Objects
         InstancedObjectMap m_instanced_objects;
+
+        BlockPositionMap m_blocks;
 
         // Shaders
         Shader m_shader;
