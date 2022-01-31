@@ -160,6 +160,38 @@ class Game : public Engine {
             m_shader_map[SHADER_BLOCK].load("lib/3DEngine/shaders/vertex.glsl", "lib/3DEngine/shaders/cubemap_fragment.glsl");
 
             // Load textures
+            this->load_textures();
+
+            // Configure lighting
+            m_material.ambient = WHITE;
+            m_material.diffuse = WHITE;
+            m_material.specular = WHITE;
+            m_material.shininess = 32;
+
+            m_light.ambient = glm::vec3(0.5, 0.5, 0.5);
+            m_light.diffuse = glm::vec3(0.5, 0.5, 0.5);
+            m_light.specular = glm::vec3(0.0, 0.0, 0.0);
+
+            // Create objects
+            this->create_chunk(glm::vec2(0, 0));
+            this->create_chunk(glm::vec2(1, 0));
+            this->create_chunk(glm::vec2(-1, 0));
+        }
+
+        /* update
+         */
+        void update() {
+            this->process_keyboard_input();
+
+            if (m_mouse_updated) {
+                m_camera.set_mouse_offset(m_mouse_offset_x, m_mouse_offset_y);
+                m_mouse_updated = false;
+            }
+        }
+
+        /* load_textures
+         */
+        void load_textures() {
             // Grass texture
             std::vector<unsigned char*> faces;
             faces.push_back(m_block_atlas.get_texture_data(GRASS_SIDE));
@@ -189,32 +221,6 @@ class Game : public Engine {
             faces.push_back(m_block_atlas.get_texture_data(STONE));
             faces.push_back(m_block_atlas.get_texture_data(STONE));
             m_texture_map[BLOCK_STONE].load(faces, TEXTURE_WIDTH, TEXTURE_WIDTH, m_block_atlas.get_num_channels(), 2);
-
-            // Configure lighting
-            m_material.ambient = WHITE;
-            m_material.diffuse = WHITE;
-            m_material.specular = WHITE;
-            m_material.shininess = 32;
-
-            m_light.ambient = glm::vec3(0.5, 0.5, 0.5);
-            m_light.diffuse = glm::vec3(0.5, 0.5, 0.5);
-            m_light.specular = glm::vec3(0.0, 0.0, 0.0);
-
-            // Create objects
-            this->create_chunk(glm::vec2(0, 0));
-            this->create_chunk(glm::vec2(1, 0));
-            this->create_chunk(glm::vec2(-1, 0));
-        }
-
-        /* update
-         */
-        void update() {
-            this->process_keyboard_input();
-
-            if (m_mouse_updated) {
-                m_camera.set_mouse_offset(m_mouse_offset_x, m_mouse_offset_y);
-                m_mouse_updated = false;
-            }
         }
 
         /* create_chunk
@@ -293,6 +299,8 @@ class Game : public Engine {
             }
         }
 
+        /* is_block_visible
+         */
         bool is_block_visible(glm::vec3 position) {
             return !(m_blocks.find(glm::vec3(position.x + 1, position.y, position.z)) != m_blocks.end() && // +x
                      m_blocks.find(glm::vec3(position.x - 1, position.y, position.z)) != m_blocks.end() && // -x
