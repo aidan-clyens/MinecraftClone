@@ -30,6 +30,10 @@
 
 // Enums
 typedef enum {
+    SHADER_BLOCK
+} eShader;
+
+typedef enum {
     BLOCK_GRASS,
     BLOCK_DIRT,
     BLOCK_STONE
@@ -66,6 +70,9 @@ struct vec3_key_equal : public std::binary_function<glm::vec3, glm::vec3, bool> 
 typedef std::unordered_map<eBlockType, TextureCubeMap> TextureMap;
 typedef std::unordered_map<eBlockType, TextureCubeMap>::iterator TextureMapIterator;
 
+typedef std::unordered_map<eShader, Shader> ShaderMap;
+typedef std::unordered_map<eShader, Shader>::iterator ShaderMapIterator;
+
 typedef std::unordered_map<eBlockType, std::vector<glm::vec3>> BlockMap;
 typedef std::unordered_map<eBlockType, std::vector<glm::vec3>>::iterator BlockMapIterator;
 
@@ -86,6 +93,8 @@ class Game : public Engine {
         m_block_atlas("textures/block_atlas.png", 8, 8, TEXTURE_WIDTH)
         {
             m_camera.set_position(glm::vec3(0, CHUNK_DEPTH + 5, 5));
+
+            m_shader_map[SHADER_BLOCK] = Shader();
 
             m_texture_map[BLOCK_GRASS] = TextureCubeMap();
             m_texture_map[BLOCK_DIRT] = TextureCubeMap();
@@ -148,7 +157,7 @@ class Game : public Engine {
          */
         void setup() {
             // Load shaders
-            m_shader.load("lib/3DEngine/shaders/vertex.glsl", "lib/3DEngine/shaders/cubemap_fragment.glsl");
+            m_shader_map[SHADER_BLOCK].load("lib/3DEngine/shaders/vertex.glsl", "lib/3DEngine/shaders/cubemap_fragment.glsl");
 
             // Load textures
             // Grass texture
@@ -195,12 +204,6 @@ class Game : public Engine {
             this->create_chunk(glm::vec2(0, 0));
             this->create_chunk(glm::vec2(1, 0));
             this->create_chunk(glm::vec2(-1, 0));
-            this->create_chunk(glm::vec2(0, 1));
-            this->create_chunk(glm::vec2(1, 1));
-            this->create_chunk(glm::vec2(-1, 1));
-            this->create_chunk(glm::vec2(0, -1));
-            this->create_chunk(glm::vec2(1, -1));
-            this->create_chunk(glm::vec2(-1, -1));
         }
 
         /* update
@@ -262,8 +265,8 @@ class Game : public Engine {
                 if (m_instanced_objects.find(type) == m_instanced_objects.end()) {
                     Cube *cube = new Cube(glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1));
 
-                    if (m_shader.is_valid()) {
-                        cube->set_shader(m_shader);
+                    if (m_shader_map[SHADER_BLOCK].is_valid()) {
+                        cube->set_shader(m_shader_map[SHADER_BLOCK]);
                         cube->set_texture(m_texture_map[type]);
                         cube->set_material(m_material);
                         cube->set_light(m_light);
@@ -306,7 +309,7 @@ class Game : public Engine {
         BlockPositionMap m_blocks;
 
         // Shaders
-        Shader m_shader;
+        ShaderMap m_shader_map;
 
         // Textures
         BlockAtlas m_block_atlas;
