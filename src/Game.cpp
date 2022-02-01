@@ -75,6 +75,8 @@ void Game::setup() {
     this->create_chunk(vec2(0, 0));
     this->create_chunk(vec2(1, 0));
     this->create_chunk(vec2(-1, 0));
+
+    this->update_world_blocks();
 }
 
 /* update
@@ -91,47 +93,14 @@ void Game::update() {
 /* create_chunk
  */
 void Game::create_chunk(vec2 position) {
-    BlockMap blocks;
+    Chunk chunk(position);
+    BlockTypeMap *blocks = chunk.get_block_map();
 
-    // Generate height map
-    HeightMapSettings settings;
-    settings.seed = 123456;
-    settings.width = CHUNK_WIDTH;
-    settings.height = CHUNK_WIDTH;
-    settings.scale = 1;
-    settings.depth = 5;
-    settings.octaves = 3;
-    settings.persistence = 0.2;
-    settings.lacunarity = 2;
+    for (BlockTypeMapIterator it = blocks->begin(); it != blocks->end(); it++) {
+        vec3 block_position = it->first;
+        eBlockType type = it->second;
 
-    HeightMap height_map;
-    HeightMapGenerator::generate_height_map(height_map, position.x, position.y, settings);
-
-    for (int x = 0; x < CHUNK_WIDTH; x++) {
-        for (int z = 0; z < CHUNK_WIDTH; z++) {
-            int max_height = CHUNK_DEPTH + (int)std::floor(height_map[vec2(x, z)]);
-
-            for (int y = 0; y < max_height; y++) {
-                eBlockType type;
-                if (y == max_height - 1) {
-                    type = BLOCK_GRASS;
-                }
-                else if (y < max_height - 1 && y > max_height - 5) {
-                    type = BLOCK_DIRT;
-                }
-                else {
-                    type = BLOCK_STONE;
-                }
-
-                blocks[type].push_back(vec3(x + position.x * (CHUNK_WIDTH - 1), y, z + position.y * (CHUNK_WIDTH - 1)));
-                m_blocks[vec3(x + position.x * (CHUNK_WIDTH - 1), y, z + position.y * (CHUNK_WIDTH - 1))] = type;
-            }
-        }
-    }
-
-    // Create an Object3DGroup for each type of block
-    for (BlockMapIterator it = blocks.begin(); it != blocks.end(); it++) {
-        eBlockType type = it->first;
+        m_world_blocks[block_position] = type;
 
         if (m_instanced_objects.find(type) == m_instanced_objects.end()) {
             Block *block = new Block(type, vec3(0, 0, 0));
@@ -139,17 +108,24 @@ void Game::create_chunk(vec2 position) {
             m_instanced_objects[type] = new Object3DGroup(block);
             this->add_object(m_instanced_objects[type]);
         }
+    }
+}
 
-        for (int i = 0; i < it->second.size(); i++) {
-            // Determine if block is visible
-            if (this->is_block_visible(it->second[i])) {
-                Transform transform;
-                transform.position = it->second[i];
-                transform.rotation = vec3(0, 0, 0);
-                transform.size = vec3(1, 1, 1);
+/* update_world_blocks
+ */
+void Game::update_world_blocks() {
+    for (BlockTypeMapIterator it = m_world_blocks.begin(); it != m_world_blocks.end(); it++) {
+        vec3 block_position = it->first;
+        eBlockType type = it->second;
 
-                m_instanced_objects[type]->add_transform(transform);
-            }
+        // Determine if block is visible
+        if (this->is_block_visible(block_position)) {
+            Transform transform;
+            transform.position = block_position;
+            transform.rotation = vec3(0, 0, 0);
+            transform.size = vec3(1, 1, 1);
+
+            m_instanced_objects[type]->add_transform(transform);
         }
     }
 }
@@ -157,10 +133,10 @@ void Game::create_chunk(vec2 position) {
 /* is_block_visible
  */
 bool Game::is_block_visible(vec3 position) {
-    return !(m_blocks.find(vec3(position.x + 1, position.y, position.z)) != m_blocks.end() && // +x
-             m_blocks.find(vec3(position.x - 1, position.y, position.z)) != m_blocks.end() && // -x
-             m_blocks.find(vec3(position.x, position.y + 1, position.z)) != m_blocks.end() && // +y
-             m_blocks.find(vec3(position.x, position.y - 1, position.z)) != m_blocks.end() && // -y
-             m_blocks.find(vec3(position.x, position.y, position.z + 1)) != m_blocks.end() && // +z
-             m_blocks.find(vec3(position.x, position.y, position.z - 1)) != m_blocks.end());  // -z
+    return !(m_world_blocks.find(vec3(position.x + 1, position.y, position.z)) != m_world_blocks.end() && // +x
+             m_world_blocks.find(vec3(position.x - 1, position.y, position.z)) != m_world_blocks.end() && // -x
+             m_world_blocks.find(vec3(position.x, position.y + 1, position.z)) != m_world_blocks.end() && // +y
+             m_world_blocks.find(vec3(position.x, position.y - 1, position.z)) != m_world_blocks.end() && // -y
+             m_world_blocks.find(vec3(position.x, position.y, position.z + 1)) != m_world_blocks.end() && // +z
+             m_world_blocks.find(vec3(position.x, position.y, position.z - 1)) != m_world_blocks.end());  // -z
 }

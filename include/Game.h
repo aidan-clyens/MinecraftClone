@@ -6,6 +6,7 @@
 #include "ShaderManager.h"
 #include "TextureManager.h"
 #include "Block.h"
+#include "Chunk.h"
 
 #include <iostream>
 #include <unordered_map>
@@ -19,38 +20,10 @@
 
 #define CAMERA_SPEED 5
 
-#define CHUNK_WIDTH 16
-#define CHUNK_DEPTH 64
-
-
-// Structs
-/* key_hash
- */
-struct vec3_key_hash : public std::unary_function<vec3, std::size_t> {
-    std::size_t operator() (const vec3 &c) const {
-        int x = (int)c.x;
-        int y = (int)c.y;
-        int z = (int)c.z;
-        return x ^ y ^ z;
-    }
-};
-
-/* key_equal
- */
-struct vec3_key_equal : public std::binary_function<vec3, vec3, bool> {
-    bool operator() (const vec3 &c0, const vec3 &c1) const {
-        return c0 == c1;
-    }
-};
 
 // Typedefs
-typedef std::unordered_map<eBlockType, std::vector<vec3>> BlockMap;
-typedef std::unordered_map<eBlockType, std::vector<vec3>>::iterator BlockMapIterator;
-
 typedef std::unordered_map<eBlockType, Object3DGroup*> InstancedObjectMap;
 typedef std::unordered_map<eBlockType, Object3DGroup*>::iterator InstancedObjectMapIterator;
-
-typedef std::unordered_map<vec3, eBlockType, vec3_key_hash, vec3_key_equal> BlockPositionMap;
 
 
 // Class definitions
@@ -68,13 +41,14 @@ class Game : public Engine {
 
         void create_chunk(vec2 position);
 
+        void update_world_blocks();
+
         bool is_block_visible(vec3 position);
 
     private:
         // Objects
         InstancedObjectMap m_instanced_objects;
-
-        BlockPositionMap m_blocks;
+        BlockTypeMap m_world_blocks;
 
         // Managers
         ShaderManager *p_shader_manager;
