@@ -1,7 +1,7 @@
 #pragma once
 
 // Includes
-#include "NoiseMapGenerator.h"
+#include "Terrain/NoiseMapGenerator.h"
 
 #include <unordered_map>
 

@@ -1,4 +1,4 @@
-#include "NoiseMapGenerator.h"
+#include "Terrain/NoiseMapGenerator.h"
 
 
 /* init

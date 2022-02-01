@@ -1,4 +1,4 @@
-#include "PerlinNoise.h"
+#include "Terrain/PerlinNoise.h"
 
 
 static int permutations[2 * PERMUTATION_SIZE];

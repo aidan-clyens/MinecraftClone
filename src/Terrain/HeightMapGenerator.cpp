@@ -1,4 +1,4 @@
-#include "HeightMapGenerator.h"
+#include "Terrain/HeightMapGenerator.h"
 
 
 /* init

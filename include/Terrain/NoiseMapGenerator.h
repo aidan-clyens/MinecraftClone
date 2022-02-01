@@ -3,7 +3,7 @@
 // Includes
 #include "Engine/Object3D.h"
 
-#include "PerlinNoise.h"
+#include "Terrain/PerlinNoise.h"
 
 #include <unordered_map>
 

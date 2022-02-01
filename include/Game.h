@@ -6,7 +6,7 @@
 #include "Engine/TextureCubeMap.h"
 #include "Engine/Object3DGroup.h"
 
-#include "HeightMapGenerator.h"
+#include "Terrain/HeightMapGenerator.h"
 #include "BlockAtlas.h"
 #include "ShaderManager.h"
 #include "TextureManager.h"
