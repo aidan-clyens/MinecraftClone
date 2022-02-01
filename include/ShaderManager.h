@@ -2,8 +2,12 @@
 
 // Includes
 #include "Engine/Shader.h"
+#include "Engine/Object3D.h"
 
 #include <unordered_map>
+
+// Defines
+#define WHITE glm::vec3(1, 1, 1)
 
 // Enums
 /* eShader
@@ -25,6 +29,8 @@ class ShaderManager {
         void load_shaders();
 
         Shader get_shader(eShader type);
+        Material get_material();
+        Light get_light();
 
     private:
         ShaderManager();
@@ -32,4 +38,6 @@ class ShaderManager {
         static ShaderManager *p_instance;
 
         ShaderMap m_shader_map;
+        Material m_material;
+        Light m_light;
 };

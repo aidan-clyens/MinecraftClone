@@ -23,8 +23,6 @@
 
 #define CAMERA_SPEED 5
 
-#define WHITE glm::vec3(1, 1, 1)
-
 #define CHUNK_WIDTH 16
 #define CHUNK_DEPTH 64
 
@@ -85,12 +83,6 @@ class Game : public Engine {
         // Managers
         ShaderManager *p_shader_manager;
         TextureManager *p_texture_manager;
-
-        // Materials
-        Material m_material;
-
-        // Light
-        Light m_light;
 
         // Mouse
         bool m_first_mouse = false;

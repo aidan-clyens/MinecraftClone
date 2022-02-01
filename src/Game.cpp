@@ -71,16 +71,6 @@ void Game::setup() {
     // Load textures
     p_texture_manager->load_textures();
 
-    // Configure lighting
-    m_material.ambient = WHITE;
-    m_material.diffuse = WHITE;
-    m_material.specular = WHITE;
-    m_material.shininess = 32;
-
-    m_light.ambient = glm::vec3(0.5, 0.5, 0.5);
-    m_light.diffuse = glm::vec3(0.5, 0.5, 0.5);
-    m_light.specular = glm::vec3(0.0, 0.0, 0.0);
-
     // Create objects
     this->create_chunk(glm::vec2(0, 0));
     this->create_chunk(glm::vec2(1, 0));
@@ -149,8 +139,8 @@ void Game::create_chunk(glm::vec2 position) {
             if (p_shader_manager->get_shader(SHADER_BLOCK).is_valid()) {
                 cube->set_shader(p_shader_manager->get_shader(SHADER_BLOCK));
                 cube->set_texture(p_texture_manager->get_texture(type));
-                cube->set_material(m_material);
-                cube->set_light(m_light);
+                cube->set_material(p_shader_manager->get_material());
+                cube->set_light(p_shader_manager->get_light());
             }
             else {
                 std::cerr << "Error: Block shader invalid" << std::endl;
