@@ -8,6 +8,7 @@
 
 #include "HeightMapGenerator.h"
 #include "BlockAtlas.h"
+#include "TextureManager.h"
 
 #include <iostream>
 #include <unordered_map>
@@ -26,25 +27,10 @@
 #define CHUNK_WIDTH 16
 #define CHUNK_DEPTH 64
 
-#define TEXTURE_WIDTH 16
-
 // Enums
 typedef enum {
     SHADER_BLOCK
 } eShader;
-
-typedef enum {
-    BLOCK_GRASS,
-    BLOCK_DIRT,
-    BLOCK_STONE
-} eBlockType;
-
-typedef enum {
-    GRASS_SIDE,
-    GRASS_BOTTOM,
-    GRASS_TOP,
-    STONE
-} eBlockAtlas;
 
 // Structs
 /* key_hash
@@ -67,9 +53,6 @@ struct vec3_key_equal : public std::binary_function<glm::vec3, glm::vec3, bool> 
 };
 
 // Typedefs
-typedef std::unordered_map<eBlockType, TextureCubeMap> TextureMap;
-typedef std::unordered_map<eBlockType, TextureCubeMap>::iterator TextureMapIterator;
-
 typedef std::unordered_map<eShader, Shader> ShaderMap;
 typedef std::unordered_map<eShader, Shader>::iterator ShaderMapIterator;
 
@@ -90,15 +73,11 @@ class Game : public Engine {
         /* Game
          */
         Game():
-        m_block_atlas("textures/block_atlas.png", 8, 8, TEXTURE_WIDTH)
+        p_texture_manager(TextureManager::get_instance())
         {
             m_camera.set_position(glm::vec3(0, CHUNK_DEPTH + 5, 5));
 
             m_shader_map[SHADER_BLOCK] = Shader();
-
-            m_texture_map[BLOCK_GRASS] = TextureCubeMap();
-            m_texture_map[BLOCK_DIRT] = TextureCubeMap();
-            m_texture_map[BLOCK_STONE] = TextureCubeMap();
 
             HeightMapGenerator::init();
         }
@@ -160,7 +139,7 @@ class Game : public Engine {
             m_shader_map[SHADER_BLOCK].load("lib/3DEngine/shaders/vertex.glsl", "lib/3DEngine/shaders/cubemap_fragment.glsl");
 
             // Load textures
-            this->load_textures();
+            p_texture_manager->load_textures();
 
             // Configure lighting
             m_material.ambient = WHITE;
@@ -187,40 +166,6 @@ class Game : public Engine {
                 m_camera.set_mouse_offset(m_mouse_offset_x, m_mouse_offset_y);
                 m_mouse_updated = false;
             }
-        }
-
-        /* load_textures
-         */
-        void load_textures() {
-            // Grass texture
-            std::vector<unsigned char*> faces;
-            faces.push_back(m_block_atlas.get_texture_data(GRASS_SIDE));
-            faces.push_back(m_block_atlas.get_texture_data(GRASS_SIDE));
-            faces.push_back(m_block_atlas.get_texture_data(GRASS_TOP));
-            faces.push_back(m_block_atlas.get_texture_data(GRASS_BOTTOM));
-            faces.push_back(m_block_atlas.get_texture_data(GRASS_SIDE));
-            faces.push_back(m_block_atlas.get_texture_data(GRASS_SIDE));
-            m_texture_map[BLOCK_GRASS].load(faces, TEXTURE_WIDTH, TEXTURE_WIDTH, m_block_atlas.get_num_channels(), 0);
-
-            // Dirt texture
-            faces.clear();
-            faces.push_back(m_block_atlas.get_texture_data(GRASS_BOTTOM));
-            faces.push_back(m_block_atlas.get_texture_data(GRASS_BOTTOM));
-            faces.push_back(m_block_atlas.get_texture_data(GRASS_BOTTOM));
-            faces.push_back(m_block_atlas.get_texture_data(GRASS_BOTTOM));
-            faces.push_back(m_block_atlas.get_texture_data(GRASS_BOTTOM));
-            faces.push_back(m_block_atlas.get_texture_data(GRASS_BOTTOM));
-            m_texture_map[BLOCK_DIRT].load(faces, TEXTURE_WIDTH, TEXTURE_WIDTH, m_block_atlas.get_num_channels(), 1);
-
-            // Stone texture
-            faces.clear();
-            faces.push_back(m_block_atlas.get_texture_data(STONE));
-            faces.push_back(m_block_atlas.get_texture_data(STONE));
-            faces.push_back(m_block_atlas.get_texture_data(STONE));
-            faces.push_back(m_block_atlas.get_texture_data(STONE));
-            faces.push_back(m_block_atlas.get_texture_data(STONE));
-            faces.push_back(m_block_atlas.get_texture_data(STONE));
-            m_texture_map[BLOCK_STONE].load(faces, TEXTURE_WIDTH, TEXTURE_WIDTH, m_block_atlas.get_num_channels(), 2);
         }
 
         /* create_chunk
@@ -273,7 +218,7 @@ class Game : public Engine {
 
                     if (m_shader_map[SHADER_BLOCK].is_valid()) {
                         cube->set_shader(m_shader_map[SHADER_BLOCK]);
-                        cube->set_texture(m_texture_map[type]);
+                        cube->set_texture(p_texture_manager->get_texture(type));
                         cube->set_material(m_material);
                         cube->set_light(m_light);
                     }
@@ -316,12 +261,13 @@ class Game : public Engine {
 
         BlockPositionMap m_blocks;
 
+        // Managers
+        TextureManager *p_texture_manager;
+
         // Shaders
         ShaderMap m_shader_map;
 
         // Textures
-        BlockAtlas m_block_atlas;
-        TextureMap m_texture_map;
 
         // Materials
         Material m_material;
