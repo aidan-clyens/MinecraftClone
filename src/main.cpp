@@ -8,6 +8,7 @@
 
 #include "HeightMapGenerator.h"
 #include "BlockAtlas.h"
+#include "ShaderManager.h"
 #include "TextureManager.h"
 
 #include <iostream>
@@ -27,10 +28,6 @@
 #define CHUNK_WIDTH 16
 #define CHUNK_DEPTH 64
 
-// Enums
-typedef enum {
-    SHADER_BLOCK
-} eShader;
 
 // Structs
 /* key_hash
@@ -53,9 +50,6 @@ struct vec3_key_equal : public std::binary_function<glm::vec3, glm::vec3, bool> 
 };
 
 // Typedefs
-typedef std::unordered_map<eShader, Shader> ShaderMap;
-typedef std::unordered_map<eShader, Shader>::iterator ShaderMapIterator;
-
 typedef std::unordered_map<eBlockType, std::vector<glm::vec3>> BlockMap;
 typedef std::unordered_map<eBlockType, std::vector<glm::vec3>>::iterator BlockMapIterator;
 
@@ -73,11 +67,10 @@ class Game : public Engine {
         /* Game
          */
         Game():
+        p_shader_manager(ShaderManager::get_instance()),
         p_texture_manager(TextureManager::get_instance())
         {
             m_camera.set_position(glm::vec3(0, CHUNK_DEPTH + 5, 5));
-
-            m_shader_map[SHADER_BLOCK] = Shader();
 
             HeightMapGenerator::init();
         }
@@ -136,7 +129,7 @@ class Game : public Engine {
          */
         void setup() {
             // Load shaders
-            m_shader_map[SHADER_BLOCK].load("lib/3DEngine/shaders/vertex.glsl", "lib/3DEngine/shaders/cubemap_fragment.glsl");
+            p_shader_manager->load_shaders();
 
             // Load textures
             p_texture_manager->load_textures();
@@ -216,8 +209,8 @@ class Game : public Engine {
                 if (m_instanced_objects.find(type) == m_instanced_objects.end()) {
                     Cube *cube = new Cube(glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1));
 
-                    if (m_shader_map[SHADER_BLOCK].is_valid()) {
-                        cube->set_shader(m_shader_map[SHADER_BLOCK]);
+                    if (p_shader_manager->get_shader(SHADER_BLOCK).is_valid()) {
+                        cube->set_shader(p_shader_manager->get_shader(SHADER_BLOCK));
                         cube->set_texture(p_texture_manager->get_texture(type));
                         cube->set_material(m_material);
                         cube->set_light(m_light);
@@ -262,12 +255,8 @@ class Game : public Engine {
         BlockPositionMap m_blocks;
 
         // Managers
+        ShaderManager *p_shader_manager;
         TextureManager *p_texture_manager;
-
-        // Shaders
-        ShaderMap m_shader_map;
-
-        // Textures
 
         // Materials
         Material m_material;
