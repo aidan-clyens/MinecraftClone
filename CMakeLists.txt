@@ -6,8 +6,9 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 add_subdirectory(lib/3DEngine)
+add_subdirectory(src)
 
-add_executable(${PROJECT_NAME} src/main.cpp src/PerlinNoise.cpp src/NoiseMapGenerator.cpp src/HeightMapGenerator.cpp src/BlockAtlas.cpp src/TextureManager.cpp src/ShaderManager.cpp)
+add_executable(${PROJECT_NAME} app/main.cpp)
 target_include_directories(${PROJECT_NAME} PUBLIC include)
 target_include_directories(${PROJECT_NAME} PUBLIC lib/3DEngine/include)
-target_link_libraries(${PROJECT_NAME} EngineCore)
+target_link_libraries(${PROJECT_NAME} EngineCore Game)
