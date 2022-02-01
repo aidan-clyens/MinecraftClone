@@ -134,19 +134,9 @@ void Game::create_chunk(glm::vec2 position) {
         eBlockType type = it->first;
 
         if (m_instanced_objects.find(type) == m_instanced_objects.end()) {
-            Cube *cube = new Cube(glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1));
+            Block *block = new Block(type, glm::vec3(0, 0, 0));
 
-            if (p_shader_manager->get_shader(SHADER_BLOCK).is_valid()) {
-                cube->set_shader(p_shader_manager->get_shader(SHADER_BLOCK));
-                cube->set_texture(p_texture_manager->get_texture(type));
-                cube->set_material(p_shader_manager->get_material());
-                cube->set_light(p_shader_manager->get_light());
-            }
-            else {
-                std::cerr << "Error: Block shader invalid" << std::endl;
-            }
-
-            m_instanced_objects[type] = new Object3DGroup(cube);
+            m_instanced_objects[type] = new Object3DGroup(block);
             this->add_object(m_instanced_objects[type]);
         }
 

@@ -1,15 +1,11 @@
 // Includes
 #include "Engine/Engine.h"
-#include "Engine/Cube.h"
-#include "Engine/Shader.h"
-#include "Engine/Texture2D.h"
-#include "Engine/TextureCubeMap.h"
 #include "Engine/Object3DGroup.h"
 
 #include "Terrain/HeightMapGenerator.h"
-#include "BlockAtlas.h"
 #include "ShaderManager.h"
 #include "TextureManager.h"
+#include "Block.h"
 
 #include <iostream>
 #include <unordered_map>
