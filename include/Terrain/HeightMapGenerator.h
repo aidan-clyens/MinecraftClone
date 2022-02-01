@@ -20,7 +20,7 @@ typedef struct {
 } HeightMapSettings;
 
 // Typedefs
-typedef std::unordered_map<glm::vec2, float, key_hash, key_equal> HeightMap;
+typedef std::unordered_map<vec2, float, key_hash, key_equal> HeightMap;
 
 
 /* HeightMapGenerator

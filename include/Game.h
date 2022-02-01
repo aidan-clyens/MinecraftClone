@@ -26,8 +26,8 @@
 // Structs
 /* key_hash
  */
-struct vec3_key_hash : public std::unary_function<glm::vec3, std::size_t> {
-    std::size_t operator() (const glm::vec3 &c) const {
+struct vec3_key_hash : public std::unary_function<vec3, std::size_t> {
+    std::size_t operator() (const vec3 &c) const {
         int x = (int)c.x;
         int y = (int)c.y;
         int z = (int)c.z;
@@ -37,20 +37,20 @@ struct vec3_key_hash : public std::unary_function<glm::vec3, std::size_t> {
 
 /* key_equal
  */
-struct vec3_key_equal : public std::binary_function<glm::vec3, glm::vec3, bool> {
-    bool operator() (const glm::vec3 &c0, const glm::vec3 &c1) const {
+struct vec3_key_equal : public std::binary_function<vec3, vec3, bool> {
+    bool operator() (const vec3 &c0, const vec3 &c1) const {
         return c0 == c1;
     }
 };
 
 // Typedefs
-typedef std::unordered_map<eBlockType, std::vector<glm::vec3>> BlockMap;
-typedef std::unordered_map<eBlockType, std::vector<glm::vec3>>::iterator BlockMapIterator;
+typedef std::unordered_map<eBlockType, std::vector<vec3>> BlockMap;
+typedef std::unordered_map<eBlockType, std::vector<vec3>>::iterator BlockMapIterator;
 
 typedef std::unordered_map<eBlockType, Object3DGroup*> InstancedObjectMap;
 typedef std::unordered_map<eBlockType, Object3DGroup*>::iterator InstancedObjectMapIterator;
 
-typedef std::unordered_map<glm::vec3, eBlockType, vec3_key_hash, vec3_key_equal> BlockPositionMap;
+typedef std::unordered_map<vec3, eBlockType, vec3_key_hash, vec3_key_equal> BlockPositionMap;
 
 
 // Class definitions
@@ -66,9 +66,9 @@ class Game : public Engine {
         void setup();
         void update();
 
-        void create_chunk(glm::vec2 position);
+        void create_chunk(vec2 position);
 
-        bool is_block_visible(glm::vec3 position);
+        bool is_block_visible(vec3 position);
 
     private:
         // Objects

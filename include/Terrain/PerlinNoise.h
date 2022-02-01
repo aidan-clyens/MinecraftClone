@@ -1,7 +1,7 @@
 #pragma once
 
 // Includes
-#include <glm/glm.hpp>
+#include "Engine/utils/types.h"
 
 // Defines
 #define PERMUTATION_SIZE 256
@@ -17,7 +17,7 @@ class PerlinNoise {
     private:
         PerlinNoise();
 
-        static glm::vec2 get_constant_vector(int value);
+        static vec2 get_constant_vector(int value);
         static float lerp(float t, float a, float b);
         static float fade(float t);
 };

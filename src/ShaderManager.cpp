@@ -30,9 +30,9 @@ void ShaderManager::load_shaders() {
     m_material.specular = WHITE;
     m_material.shininess = 1;
 
-    m_light.ambient = glm::vec3(0.5, 0.5, 0.5);
-    m_light.diffuse = glm::vec3(0.5, 0.5, 0.5);
-    m_light.specular = glm::vec3(0.0, 0.0, 0.0);
+    m_light.ambient = vec3(0.5, 0.5, 0.5);
+    m_light.diffuse = vec3(0.5, 0.5, 0.5);
+    m_light.specular = vec3(0.0, 0.0, 0.0);
 }
 
 /* get_shader

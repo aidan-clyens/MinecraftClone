@@ -29,7 +29,7 @@ void HeightMapGenerator::generate_height_map(HeightMap &height_map, int x, int y
     // Determine map depth
     for (int x = 0; x < settings.width; x++) {
         for (int y = 0; y < settings.width; y++) {
-            height_map[glm::vec2(x, y)] = noise_map[glm::vec2(x, y)] * settings.depth;
+            height_map[vec2(x, y)] = noise_map[vec2(x, y)] * settings.depth;
         }
     }
 }

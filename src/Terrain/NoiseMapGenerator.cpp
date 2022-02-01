@@ -36,14 +36,14 @@ void NoiseMapGenerator::generate_noise_map(NoiseMap &noise_map, float offset_x, 
                 frequency *= settings.lacunarity;
             }
 
-            noise_map[glm::vec2(x, y)] = noise_height;
+            noise_map[vec2(x, y)] = noise_height;
         }
     }
 
     // Normalize noise map
     for (int x = 0; x < settings.width; x++) {
         for (int y = 0; y < settings.height; y++) {
-            noise_map[glm::vec2(x, y)] = NoiseMapGenerator::inverse_lerp(-max_possible_height, max_possible_height, noise_map[glm::vec2(x, y)]);
+            noise_map[vec2(x, y)] = NoiseMapGenerator::inverse_lerp(-max_possible_height, max_possible_height, noise_map[vec2(x, y)]);
         }
     }
 }

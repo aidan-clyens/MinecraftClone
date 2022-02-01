@@ -22,10 +22,10 @@ float PerlinNoise::perlin_noise(float sample_x, float sample_y, int length, int 
     float xf = sample_x - std::floor(sample_x);
     float yf = sample_y - std::floor(sample_y);
 
-    glm::vec2 top_right = glm::vec2(xf - 1, yf - 1);
-    glm::vec2 top_left = glm::vec2(xf, yf - 1);
-    glm::vec2 bottom_right = glm::vec2(xf - 1, yf);
-    glm::vec2 bottom_left = glm::vec2(xf, yf);
+    vec2 top_right = vec2(xf - 1, yf - 1);
+    vec2 top_left = vec2(xf, yf - 1);
+    vec2 bottom_right = vec2(xf - 1, yf);
+    vec2 bottom_left = vec2(xf, yf);
 
     int X = (int)std::floor(sample_x) & (PERMUTATION_SIZE - 1);
     int Y = (int)std::floor(sample_y) & (PERMUTATION_SIZE - 1);
@@ -52,23 +52,23 @@ float PerlinNoise::perlin_noise(float sample_x, float sample_y, int length, int 
 
 /* get_constant_vector
  */
-glm::vec2 PerlinNoise::get_constant_vector(int value) {
+vec2 PerlinNoise::get_constant_vector(int value) {
     value = value % 4;
     
     switch(value) {
         case 0:
-            return glm::vec2(1, 1);
+            return vec2(1, 1);
         case 1:
-            return glm::vec2(-1, 1);
+            return vec2(-1, 1);
         case 2:
-            return glm::vec2(-1, -1);
+            return vec2(-1, -1);
         case 3:
-            return glm::vec2(1, -1);
+            return vec2(1, -1);
         default:
             break;
     }
 
-    return glm::vec2(1, 1);
+    return vec2(1, 1);
 }
 
 /* lerp

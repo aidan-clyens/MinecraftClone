@@ -7,7 +7,7 @@
 #include <unordered_map>
 
 // Defines
-#define WHITE glm::vec3(1, 1, 1)
+#define WHITE vec3(1, 1, 1)
 
 // Enums
 /* eShader

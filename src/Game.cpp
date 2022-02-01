@@ -7,7 +7,7 @@ Game::Game():
 p_shader_manager(ShaderManager::get_instance()),
 p_texture_manager(TextureManager::get_instance())
 {
-    m_camera.set_position(glm::vec3(0, CHUNK_DEPTH + 5, 5));
+    m_camera.set_position(vec3(0, CHUNK_DEPTH + 5, 5));
 
     HeightMapGenerator::init();
 }
@@ -72,9 +72,9 @@ void Game::setup() {
     p_texture_manager->load_textures();
 
     // Create objects
-    this->create_chunk(glm::vec2(0, 0));
-    this->create_chunk(glm::vec2(1, 0));
-    this->create_chunk(glm::vec2(-1, 0));
+    this->create_chunk(vec2(0, 0));
+    this->create_chunk(vec2(1, 0));
+    this->create_chunk(vec2(-1, 0));
 }
 
 /* update
@@ -90,7 +90,7 @@ void Game::update() {
 
 /* create_chunk
  */
-void Game::create_chunk(glm::vec2 position) {
+void Game::create_chunk(vec2 position) {
     BlockMap blocks;
 
     // Generate height map
@@ -109,7 +109,7 @@ void Game::create_chunk(glm::vec2 position) {
 
     for (int x = 0; x < CHUNK_WIDTH; x++) {
         for (int z = 0; z < CHUNK_WIDTH; z++) {
-            int max_height = CHUNK_DEPTH + (int)std::floor(height_map[glm::vec2(x, z)]);
+            int max_height = CHUNK_DEPTH + (int)std::floor(height_map[vec2(x, z)]);
 
             for (int y = 0; y < max_height; y++) {
                 eBlockType type;
@@ -123,8 +123,8 @@ void Game::create_chunk(glm::vec2 position) {
                     type = BLOCK_STONE;
                 }
 
-                blocks[type].push_back(glm::vec3(x + position.x * (CHUNK_WIDTH - 1), y, z + position.y * (CHUNK_WIDTH - 1)));
-                m_blocks[glm::vec3(x + position.x * (CHUNK_WIDTH - 1), y, z + position.y * (CHUNK_WIDTH - 1))] = type;
+                blocks[type].push_back(vec3(x + position.x * (CHUNK_WIDTH - 1), y, z + position.y * (CHUNK_WIDTH - 1)));
+                m_blocks[vec3(x + position.x * (CHUNK_WIDTH - 1), y, z + position.y * (CHUNK_WIDTH - 1))] = type;
             }
         }
     }
@@ -134,7 +134,7 @@ void Game::create_chunk(glm::vec2 position) {
         eBlockType type = it->first;
 
         if (m_instanced_objects.find(type) == m_instanced_objects.end()) {
-            Block *block = new Block(type, glm::vec3(0, 0, 0));
+            Block *block = new Block(type, vec3(0, 0, 0));
 
             m_instanced_objects[type] = new Object3DGroup(block);
             this->add_object(m_instanced_objects[type]);
@@ -145,8 +145,8 @@ void Game::create_chunk(glm::vec2 position) {
             if (this->is_block_visible(it->second[i])) {
                 Transform transform;
                 transform.position = it->second[i];
-                transform.rotation = glm::vec3(0, 0, 0);
-                transform.size = glm::vec3(1, 1, 1);
+                transform.rotation = vec3(0, 0, 0);
+                transform.size = vec3(1, 1, 1);
 
                 m_instanced_objects[type]->add_transform(transform);
             }
@@ -156,11 +156,11 @@ void Game::create_chunk(glm::vec2 position) {
 
 /* is_block_visible
  */
-bool Game::is_block_visible(glm::vec3 position) {
-    return !(m_blocks.find(glm::vec3(position.x + 1, position.y, position.z)) != m_blocks.end() && // +x
-             m_blocks.find(glm::vec3(position.x - 1, position.y, position.z)) != m_blocks.end() && // -x
-             m_blocks.find(glm::vec3(position.x, position.y + 1, position.z)) != m_blocks.end() && // +y
-             m_blocks.find(glm::vec3(position.x, position.y - 1, position.z)) != m_blocks.end() && // -y
-             m_blocks.find(glm::vec3(position.x, position.y, position.z + 1)) != m_blocks.end() && // +z
-             m_blocks.find(glm::vec3(position.x, position.y, position.z - 1)) != m_blocks.end());  // -z
+bool Game::is_block_visible(vec3 position) {
+    return !(m_blocks.find(vec3(position.x + 1, position.y, position.z)) != m_blocks.end() && // +x
+             m_blocks.find(vec3(position.x - 1, position.y, position.z)) != m_blocks.end() && // -x
+             m_blocks.find(vec3(position.x, position.y + 1, position.z)) != m_blocks.end() && // +y
+             m_blocks.find(vec3(position.x, position.y - 1, position.z)) != m_blocks.end() && // -y
+             m_blocks.find(vec3(position.x, position.y, position.z + 1)) != m_blocks.end() && // +z
+             m_blocks.find(vec3(position.x, position.y, position.z - 1)) != m_blocks.end());  // -z
 }

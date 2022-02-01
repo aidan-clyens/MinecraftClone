@@ -13,7 +13,7 @@
  */
 class Block : public Cube {
     public:
-        Block(eBlockType type, glm::vec3 position);
+        Block(eBlockType type, vec3 position);
 
     private:
         eBlockType m_type;
