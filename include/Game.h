@@ -1,16 +1,12 @@
 // Includes
 #include "Engine/Engine.h"
-#include "Engine/Object3DGroup.h"
 
-#include "Terrain/HeightMapGenerator.h"
 #include "ShaderManager.h"
 #include "TextureManager.h"
-#include "Block.h"
 #include "Chunk.h"
+#include "World.h"
 
 #include <iostream>
-#include <unordered_map>
-#include <cmath>
 
 // Defines
 #define SCREEN_WIDTH 1600
@@ -19,11 +15,6 @@
 #define MOUSE_SENSITIVITY 0.1
 
 #define CAMERA_SPEED 5
-
-
-// Typedefs
-typedef std::unordered_map<eBlockType, Object3DGroup*> InstancedObjectMap;
-typedef std::unordered_map<eBlockType, Object3DGroup*>::iterator InstancedObjectMapIterator;
 
 
 // Class definitions
@@ -39,16 +30,9 @@ class Game : public Engine {
         void setup();
         void update();
 
-        void create_chunk(vec2 position);
-
-        void update_world_blocks();
-
-        bool is_block_visible(vec3 position);
-
     private:
         // Objects
-        InstancedObjectMap m_instanced_objects;
-        BlockTypeMap m_world_blocks;
+        World m_world;
 
         // Managers
         ShaderManager *p_shader_manager;
