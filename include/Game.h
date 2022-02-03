@@ -24,7 +24,6 @@ class Game : public Engine {
     public:
         Game();
 
-        void process_mouse_input(double x, double y);
         void process_keyboard_input();
 
         void setup();
@@ -37,12 +36,4 @@ class Game : public Engine {
         // Managers
         ShaderManager *p_shader_manager;
         TextureManager *p_texture_manager;
-
-        // Mouse
-        bool m_first_mouse = false;
-        double m_last_mouse_pos_x = SCREEN_WIDTH / 2;
-        double m_last_mouse_pos_y = SCREEN_HEIGHT / 2;
-        double m_mouse_offset_x = 0;
-        double m_mouse_offset_y = 0;
-        bool m_mouse_updated = false;
 };
