@@ -5,6 +5,7 @@
 #include "TextureManager.h"
 #include "Chunk.h"
 #include "World.h"
+#include "Player.h"
 
 #include <iostream>
 
@@ -12,9 +13,6 @@
 #define SCREEN_WIDTH 1600
 #define SCREEN_HEIGHT 900
 
-#define MOUSE_SENSITIVITY 0.1
-
-#define CAMERA_SPEED 5
 
 
 // Class definitions
@@ -32,6 +30,7 @@ class Game : public Engine {
     private:
         // Objects
         World m_world;
+        Player m_player;
 
         // Managers
         ShaderManager *p_shader_manager;
