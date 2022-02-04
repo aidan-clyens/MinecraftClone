@@ -29,9 +29,16 @@ void World::add_chunk(Chunk *chunk) {
         m_world_blocks[block_position] = type;
 
         if (m_instanced_objects.find(type) == m_instanced_objects.end()) {
-            Block *block = new Block(type, vec3(0, 0, 0));
+            m_instanced_objects[type] = new Object3D(vec3(0, 0, 0), vec3(0, 0, 0), vec3(1, 1, 1));
 
-            m_instanced_objects[type] = new Object3DGroup(block);
+            CubeMesh mesh;
+            mesh.set_shader(ShaderManager::get_instance()->get_shader(SHADER_BLOCK));
+            mesh.set_texture(TextureManager::get_instance()->get_texture(type));
+            mesh.set_material(ShaderManager::get_instance()->get_material());
+            mesh.set_light(ShaderManager::get_instance()->get_light());
+
+            m_instanced_objects[type]->add_component(COMP_MESH, new MeshInstances(&mesh));
+
             p_parent->add_object(m_instanced_objects[type]);
         }
     }
@@ -51,7 +58,8 @@ void World::update_world_blocks() {
             transform.rotation = vec3(0, 0, 0);
             transform.size = vec3(1, 1, 1);
 
-            m_instanced_objects[type]->add_transform(transform);
+            MeshInstances *mesh = (MeshInstances*)m_instanced_objects[type]->get_component(COMP_MESH);
+            mesh->add_transform(transform);
         }
     }
 }

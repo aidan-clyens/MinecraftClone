@@ -2,17 +2,18 @@
 
 // Includes
 #include "Engine/Engine.h"
-#include "Engine/Object3DGroup.h"
+#include "Engine/ECS/MeshInstances.h"
 
 #include "Terrain/HeightMapGenerator.h"
-#include "Block.h"
+#include "ShaderManager.h"
+#include "TextureManager.h"
 #include "Chunk.h"
 
 #include <unordered_map>
 
 // Typedefs
-typedef std::unordered_map<eBlockType, Object3DGroup*> InstancedObjectMap;
-typedef std::unordered_map<eBlockType, Object3DGroup*>::iterator InstancedObjectMapIterator;
+typedef std::unordered_map<eBlockType, Object3D*> InstancedObjectMap;
+typedef std::unordered_map<eBlockType, Object3D*>::iterator InstancedObjectMapIterator;
 
 typedef std::unordered_map<vec2, Chunk*, vec2_key_hash, vec2_key_equal> ChunkMap;
 typedef std::unordered_map<vec2, Chunk*, vec2_key_hash, vec2_key_equal>::iterator ChunkMapIterator;
