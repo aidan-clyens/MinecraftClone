@@ -4,6 +4,7 @@
 /* Player
  */
 Player::Player(vec3 starting_position):
+Object3D(starting_position, vec3(0, 0, 0), vec3(1, 1, 1)),
 p_input_manager(InputManager::get_instance()),
 m_camera(starting_position)
 {

@@ -2,17 +2,16 @@
 
 // Includes
 #include "Engine/utils/types.h"
-#include "Engine/ECS/ECS.h"
+#include "Engine/Object3D.h"
 #include "Engine/InputManager.h"
 #include "Engine/Camera.h"
 
 // Defines
 #define CAMERA_SPEED 5
 
-
 /* Player
  */
-class Player : public Entity {
+class Player : public Object3D {
     public:
         Player(vec3 starting_position);
 
