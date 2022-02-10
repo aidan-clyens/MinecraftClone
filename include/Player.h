@@ -2,6 +2,7 @@
 
 // Includes
 #include "Engine/utils/types.h"
+#include "Engine/ECS/DynamicCharacterController.h"
 #include "Engine/Object3D.h"
 #include "Engine/InputManager.h"
 #include "Engine/Camera.h"

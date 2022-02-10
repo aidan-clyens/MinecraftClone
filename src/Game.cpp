@@ -5,11 +5,11 @@
  */
 Game::Game():
 m_world(this),
-m_player(vec3(0, CHUNK_DEPTH + 5, 5)),
+p_player(new Player(vec3(0, CHUNK_DEPTH + 5, 5))),
 p_shader_manager(ShaderManager::get_instance()),
 p_texture_manager(TextureManager::get_instance())
 {
-    this->set_camera(m_player.get_camera());
+
 }
 
 /* process_keyboard_input
@@ -23,6 +23,11 @@ void Game::process_keyboard_input() {
 /* setup
  */
 void Game::setup() {
+    this->set_mouse_visible(false);
+    this->set_camera(p_player->get_camera());
+
+    this->add_object(p_player);
+
     // Load shaders
     p_shader_manager->load_shaders();
 
@@ -40,5 +45,5 @@ void Game::setup() {
 void Game::update() {
     this->process_keyboard_input();
 
-    m_player.update(m_delta_time);
+    p_player->update(m_delta_time);
 }
