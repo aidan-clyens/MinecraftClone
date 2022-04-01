@@ -13,7 +13,7 @@
 /* eShader
  */
 typedef enum {
-    SHADER_BLOCK
+
 } eShader;
 
 // Typedefs

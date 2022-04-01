@@ -38,4 +38,7 @@ class World {
         InstancedObjectMap m_instanced_objects;
         ChunkMap m_chunks;
         BlockTypeMap m_world_blocks;
+
+        ShaderManager *p_shader_manager;
+        TextureManager *p_texture_manager;
 };

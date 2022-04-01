@@ -4,6 +4,7 @@
 /* Game
  */
 Game::Game():
+Engine("lib/3DEngine/"),
 m_world(this),
 p_player(new Player(vec3(5, CHUNK_DEPTH + 5, 5), true)),
 p_shader_manager(ShaderManager::get_instance()),
@@ -25,8 +26,9 @@ void Game::process_keyboard_input() {
 void Game::setup() {
     this->set_mouse_visible(false);
     this->set_camera(p_player->get_camera());
+    this->set_light_position(vec3(-2.0f, 4.0f, -1.0f));
 
-    this->add_object(p_player);
+    this->add_object(p_player); 
 
     // Load shaders
     p_shader_manager->load_shaders();

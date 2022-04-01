@@ -30,7 +30,8 @@ class Game : public Engine {
     private:
         // Objects
         World m_world;
-        Player m_player;
+
+        Player *p_player;
 
         // Managers
         ShaderManager *p_shader_manager;

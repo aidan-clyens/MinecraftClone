@@ -6,7 +6,7 @@ ShaderManager *ShaderManager::p_instance = 0;
 /* ShaderManager
  */
 ShaderManager::ShaderManager() {
-    m_shader_map[SHADER_BLOCK] = Shader();
+
 }
 
 /* get_instance
@@ -22,8 +22,6 @@ ShaderManager *ShaderManager::get_instance() {
 /* load_shaders
  */
 void ShaderManager::load_shaders() {
-    m_shader_map[SHADER_BLOCK].load("lib/3DEngine/shaders/vertex.glsl", "lib/3DEngine/shaders/cubemap_fragment.glsl");
-
     // Configure lighting
     m_material.ambient = WHITE;
     m_material.diffuse = WHITE;
@@ -31,8 +29,8 @@ void ShaderManager::load_shaders() {
     m_material.shininess = 1;
 
     m_light.ambient = vec3(0.5, 0.5, 0.5);
-    m_light.diffuse = vec3(0.5, 0.5, 0.5);
-    m_light.specular = vec3(0.0, 0.0, 0.0);
+    m_light.diffuse = vec3(0.2, 0.2, 0.2);
+    m_light.specular = vec3(0.001, 0.001, 0.001);
 }
 
 /* get_shader

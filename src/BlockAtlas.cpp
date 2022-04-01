@@ -1,5 +1,7 @@
 #include "BlockAtlas.h"
 
+#include <iostream>
+
 
 /* BlockAtlas
  */
@@ -9,21 +11,32 @@ m_rows(rows),
 m_texture_width(texture_width)
 {
     p_data = load_image_data(path, &m_atlas_width, &m_atlas_height, &m_num_channels);
-    int data_size = m_atlas_width * m_atlas_height * m_num_channels;
 
-    const int num_textures = m_cols * m_rows;
-    const int texture_data_size = m_texture_width * m_texture_width * m_num_channels;
+    if (p_data) {
+        int data_size = m_atlas_width * m_atlas_height * m_num_channels;
 
-    // Split block atlas into individual textures
-    for (int y = 0; y < (m_atlas_height * m_num_channels); y++) {
-        int row = (int)(y / (m_texture_width * m_num_channels));
-        for (int x = 0; x < (m_atlas_width * m_num_channels); x++) {
-            int pixel_index = x + y * (m_atlas_width * m_num_channels);
-            int col = (int)(x / (m_texture_width * m_num_channels));
-            int texture_index = col + row * m_cols;
+        const int num_textures = m_cols * m_rows;
+        const int texture_data_size = m_texture_width * m_texture_width * m_num_channels;
 
-            m_textures[texture_index].push_back(p_data[pixel_index]);
+        // Split block atlas into individual textures
+        for (int y = 0; y < (m_atlas_height * m_num_channels); y++) {
+            int row = (int)(y / (m_texture_width * m_num_channels));
+            for (int x = 0; x < (m_atlas_width * m_num_channels); x++) {
+                int pixel_index = x + y * (m_atlas_width * m_num_channels);
+                int col = (int)(x / (m_texture_width * m_num_channels));
+                int texture_index = col + row * m_cols;
+
+                if (pixel_index < data_size) {
+                    m_textures[texture_index].push_back(p_data[pixel_index]);
+                }
+                else {
+                    // std::cerr << "BlockAtlas: invalid array access (" << pixel_index << ")" << std::endl;
+                }
+            }
         }
+    }
+    else {
+        std::cerr << "Failed to load BlockAtlas from file: " << path << std::endl;
     }
 }
 

@@ -34,7 +34,7 @@ void TextureManager::load_textures() {
     faces.push_back(m_block_atlas.get_texture_data(GRASS_BOTTOM));
     faces.push_back(m_block_atlas.get_texture_data(GRASS_SIDE));
     faces.push_back(m_block_atlas.get_texture_data(GRASS_SIDE));
-    m_texture_map[BLOCK_GRASS].load(faces, TEXTURE_WIDTH, TEXTURE_WIDTH, m_block_atlas.get_num_channels(), 0);
+    m_texture_map[BLOCK_GRASS].load(faces, TEXTURE_WIDTH, TEXTURE_WIDTH, m_block_atlas.get_num_channels());
 
     // Dirt texture
     faces.clear();
@@ -44,7 +44,7 @@ void TextureManager::load_textures() {
     faces.push_back(m_block_atlas.get_texture_data(GRASS_BOTTOM));
     faces.push_back(m_block_atlas.get_texture_data(GRASS_BOTTOM));
     faces.push_back(m_block_atlas.get_texture_data(GRASS_BOTTOM));
-    m_texture_map[BLOCK_DIRT].load(faces, TEXTURE_WIDTH, TEXTURE_WIDTH, m_block_atlas.get_num_channels(), 1);
+    m_texture_map[BLOCK_DIRT].load(faces, TEXTURE_WIDTH, TEXTURE_WIDTH, m_block_atlas.get_num_channels());
 
     // Stone texture
     faces.clear();
@@ -54,11 +54,11 @@ void TextureManager::load_textures() {
     faces.push_back(m_block_atlas.get_texture_data(STONE));
     faces.push_back(m_block_atlas.get_texture_data(STONE));
     faces.push_back(m_block_atlas.get_texture_data(STONE));
-    m_texture_map[BLOCK_STONE].load(faces, TEXTURE_WIDTH, TEXTURE_WIDTH, m_block_atlas.get_num_channels(), 2);
+    m_texture_map[BLOCK_STONE].load(faces, TEXTURE_WIDTH, TEXTURE_WIDTH, m_block_atlas.get_num_channels());
 }
 
 /* get_texture
  */
 TextureCubeMap TextureManager::get_texture(eBlockType type) {
-    return m_texture_map[type];
+    return (TextureCubeMap)m_texture_map[type];
 }

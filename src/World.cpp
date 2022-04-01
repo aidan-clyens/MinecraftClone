@@ -4,7 +4,9 @@
 /* World
  */
 World::World(Engine *parent):
-p_parent(parent)
+p_parent(parent),
+p_shader_manager(ShaderManager::get_instance()),
+p_texture_manager(TextureManager::get_instance())
 {
     HeightMapGenerator::init();
 }
@@ -32,10 +34,8 @@ void World::add_chunk(Chunk *chunk) {
             m_instanced_objects[type] = new Object3D(vec3(0, 0, 0), vec3(0, 0, 0), vec3(1, 1, 1));
 
             CubeMesh mesh;
-            mesh.set_shader(ShaderManager::get_instance()->get_shader(SHADER_BLOCK));
-            mesh.set_texture(TextureManager::get_instance()->get_texture(type));
-            mesh.set_material(ShaderManager::get_instance()->get_material());
-            mesh.set_light(ShaderManager::get_instance()->get_light());
+            mesh.set_texture(p_texture_manager->get_texture(type));
+            mesh.set_light(p_shader_manager->get_light());
 
             m_instanced_objects[type]->add_component(COMP_MESH, new MeshInstances(&mesh));
 
