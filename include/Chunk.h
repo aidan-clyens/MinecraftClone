@@ -4,7 +4,7 @@
 #include "Engine/utils/types.h"
 
 #include "Terrain/HeightMapGenerator.h"
-#include "Block.h"
+#include "TextureManager.h"
 
 #include <vector>
 

@@ -2,6 +2,7 @@
 
 // Includes
 #include "Engine/Engine.h"
+#include "Engine/CubeMesh.h"
 #include "Engine/ECS/MeshInstances.h"
 
 #include "Terrain/HeightMapGenerator.h"
