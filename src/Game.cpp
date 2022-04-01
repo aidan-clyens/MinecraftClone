@@ -5,7 +5,7 @@
  */
 Game::Game():
 m_world(this),
-p_player(new Player(vec3(0, CHUNK_DEPTH + 5, 5))),
+p_player(new Player(vec3(5, CHUNK_DEPTH + 5, 5), true)),
 p_shader_manager(ShaderManager::get_instance()),
 p_texture_manager(TextureManager::get_instance())
 {

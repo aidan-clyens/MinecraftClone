@@ -14,7 +14,7 @@
  */
 class Player : public Object3D {
     public:
-        Player(vec3 starting_position);
+        Player(vec3 starting_position, bool fly_mode = false);
 
         void update(float delta_time);
 
@@ -24,4 +24,6 @@ class Player : public Object3D {
         InputManager *p_input_manager;
 
         Camera m_camera;
+
+        bool m_fly_mode;
 };
