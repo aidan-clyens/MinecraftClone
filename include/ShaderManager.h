@@ -32,8 +32,6 @@ class ShaderManager {
         Material get_material();
         Light get_light();
 
-        vec3 get_light_vector() const;
-
     private:
         ShaderManager();
 
@@ -42,6 +40,4 @@ class ShaderManager {
         ShaderMap m_shader_map;
         Material m_material;
         Light m_light;
-
-        vec3 m_light_vector;
 };

@@ -26,12 +26,12 @@ void Game::process_keyboard_input() {
 void Game::setup() {
     this->set_mouse_visible(false);
     this->set_camera(p_player->get_camera());
-    this->set_light_vector(p_shader_manager->get_light_vector());
 
     this->add_object(p_player); 
 
     // Load shaders
     p_shader_manager->load_shaders();
+    this->add_light(p_shader_manager->get_light());
 
     // Load textures
     p_texture_manager->load_textures();

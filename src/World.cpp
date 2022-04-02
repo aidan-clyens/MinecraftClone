@@ -35,7 +35,6 @@ void World::add_chunk(Chunk *chunk) {
 
             CubeMesh mesh;
             mesh.set_texture(p_texture_manager->get_texture(type));
-            mesh.set_light(p_shader_manager->get_light());
 
             m_instanced_objects[type]->add_component(COMP_MESH, new MeshInstances(&mesh));
 
