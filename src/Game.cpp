@@ -26,7 +26,7 @@ void Game::process_keyboard_input() {
 void Game::setup() {
     this->set_mouse_visible(false);
     this->set_camera(p_player->get_camera());
-    this->set_light_position(vec3(-2.0f, 4.0f, -1.0f));
+    this->set_light_vector(p_shader_manager->get_light_vector());
 
     this->add_object(p_player); 
 

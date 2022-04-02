@@ -28,9 +28,12 @@ void ShaderManager::load_shaders() {
     m_material.specular = WHITE;
     m_material.shininess = 1;
 
+    m_light.type = LIGHT_DIRECTIONAL;
     m_light.ambient = vec3(0.5, 0.5, 0.5);
-    m_light.diffuse = vec3(0.2, 0.2, 0.2);
-    m_light.specular = vec3(0.001, 0.001, 0.001);
+    m_light.diffuse = vec3(0.5, 0.5, 0.5);
+    m_light.specular = vec3(0.2, 0.2, 0.2);
+
+    m_light_vector = vec3(-0.2f, -1.0f, -0.3f);
 }
 
 /* get_shader
@@ -49,4 +52,10 @@ Material ShaderManager::get_material() {
  */
 Light ShaderManager::get_light() {
     return m_light;
+}
+
+/* get_light_vector
+ */
+vec3 ShaderManager::get_light_vector() const {
+    return m_light_vector;
 }
