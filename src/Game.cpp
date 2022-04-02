@@ -31,7 +31,7 @@ void Game::setup() {
 
     // Load shaders
     p_shader_manager->load_shaders();
-    this->add_light(p_shader_manager->get_light());
+    this->set_directional_light(p_shader_manager->get_light());
 
     // Load textures
     p_texture_manager->load_textures();
