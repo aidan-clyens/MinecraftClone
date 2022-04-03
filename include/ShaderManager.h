@@ -3,6 +3,7 @@
 // Includes
 #include "Engine/Shader.h"
 #include "Engine/Object3D.h"
+#include "Engine/Light.h"
 
 #include <unordered_map>
 
@@ -30,7 +31,7 @@ class ShaderManager {
 
         Shader get_shader(eShader type);
         Material get_material();
-        Light get_light();
+        DirectionalLight get_light();
 
     private:
         ShaderManager();
@@ -39,5 +40,5 @@ class ShaderManager {
 
         ShaderMap m_shader_map;
         Material m_material;
-        Light m_light;
+        DirectionalLight m_light;
 };
