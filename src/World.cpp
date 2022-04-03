@@ -5,7 +5,6 @@
  */
 World::World(Engine *parent):
 p_parent(parent),
-p_shader_manager(ShaderManager::get_instance()),
 p_texture_manager(TextureManager::get_instance())
 {
     HeightMapGenerator::init();

@@ -6,7 +6,6 @@
 #include "Engine/ECS/MeshInstances.h"
 
 #include "Terrain/HeightMapGenerator.h"
-#include "ShaderManager.h"
 #include "TextureManager.h"
 #include "Chunk.h"
 
@@ -39,6 +38,5 @@ class World {
         ChunkMap m_chunks;
         BlockTypeMap m_world_blocks;
 
-        ShaderManager *p_shader_manager;
         TextureManager *p_texture_manager;
 };
